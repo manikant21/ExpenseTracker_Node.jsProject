@@ -24,3 +24,25 @@ export const addUser = async(req, res) => {
         return res.status(500).json("Something went wrong");
     }
 }
+
+export const loginUser = async(req, res) => {
+    try {
+        const {email, password} = req.body;
+        const user = await User.findOne({
+            where: {
+                email:email
+            }
+        })
+        if(!user) {
+            return res.status(404).json({success:false, msg:"Invalid email"});
+        }
+        if(user.password !== password) {
+            return res.status(401).json({success: false, msg: "Invalid password"});
+        }
+        return res.status(200).json({success: true, msg: "User Logged in succesfully"});
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({success:false, msg: "Something went wrong"});
+    }
+}

@@ -9,7 +9,7 @@ const email_login = document.getElementById("email_login");
 const password_login = document.getElementById("password_login");
 
 if(login_form) {
-login_form.addEventListener('submit', (event) => {
+login_form.addEventListener('submit', async(event) => {
     event.preventDefault();
     if (email_login.value == "" || password_login.value == "") {
         alert("Please fill all details");
@@ -19,7 +19,31 @@ login_form.addEventListener('submit', (event) => {
         email: email_login.value,
         password: password_login.value
     }
-    console.log(loginDetails);
+     console.log(loginDetails);
+     try{
+        const response = await axios.post(`${BASE_URL_USER}/login`, loginDetails);
+        alert("User loggedin successfully");
+        console.log("User loggedin successfully");
+        console.log(response);
+        email_login.value = "";
+        password_login.value = "";
+     }
+     catch(error) {
+        console.log(error.response.status);
+        if(error.response.status == 404) {
+            alert("Please enter valid email")
+        }
+        else if(error.response.status == 401) {
+            alert("Please enter valid password");
+        }
+        else {
+            alert("Something went wrong");
+            console.log("Internal server error");
+
+        }
+     }
+  
+   
 
 })
 }
@@ -38,7 +62,8 @@ form.addEventListener('submit', async (event) => {
     }
     console.log(signUpDetails);
     try {
-        const response = await axios.post(`${BASE_URL_USER}/login`, signUpDetails);
+        const response = await axios.post(`${BASE_URL_USER}/register`, signUpDetails);
+        alert("User register successfully");
         console.log(response.status);
         console.log("User details added!");
         name.value = "";
@@ -51,7 +76,8 @@ form.addEventListener('submit', async (event) => {
             alert("This email already exist in db");
         }
         else {
-            alert("Some thing went wrong");
+            alert("Something went wrong");
+            console.log("Internal server error");
         }
 
     }
