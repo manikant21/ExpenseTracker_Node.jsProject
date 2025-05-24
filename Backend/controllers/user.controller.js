@@ -1,9 +1,13 @@
 import User from "../models/user.model.js";
+import bcrypt from 'bcrypt';
 
 
 export const addUser = async(req, res) => {
     try{
         const {name, email, password} = req.body;
+         if (!name || !email ||!password) {
+            return res.status(500).json({ message: "Missing Fields!!" });
+        }
         const isDuplicateEmail = await User.findAll({
             where: {
                 email: email
@@ -12,10 +16,11 @@ export const addUser = async(req, res) => {
         if(isDuplicateEmail.length> 0){
             return res.status(409).json({msg:"This Email already exist in DB"});
         }
+        const hashedPassword = await bcrypt.hash(password, 10);
         const user = await User.create({
             name: name,
             email: email,
-            password: password
+            password: hashedPassword
         })
         return res.status(201).json({data: user});
     }
@@ -34,12 +39,13 @@ export const loginUser = async(req, res) => {
             }
         })
         if(!user) {
-            return res.status(404).json({success:false, msg:"Invalid email"});
+            return res.status(404).json({success:false, msg:"User not found"});
         }
-        if(user.password !== password) {
-            return res.status(401).json({success: false, msg: "Invalid password"});
+        const isMatch = await bcrypt.compare(password, user.password);
+         if (!isMatch) {
+            return res.status(401).json({ success: false, msg: "User not authorized" });
         }
-        return res.status(200).json({success: true, msg: "User Logged in succesfully"});
+        return res.status(200).json({success: true, msg: "User login sucessful"});
 
     } catch (error) {
         console.log(error);
