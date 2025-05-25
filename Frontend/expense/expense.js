@@ -1,10 +1,18 @@
 const BASE_URL = "http://localhost:3000/api/v1/expense";
 let editingId = null;
-
+const userId = localStorage.getItem("userId");
 const form = document.querySelector("form");
+const logout = document.getElementById("logout");
 
-
-form.addEventListener("submit", async(event) => {
+logout.addEventListener('click', ()=> {
+    localStorage.removeItem("userId");
+    window.location.href = "../login/login.html";
+})
+if (!userId) {
+    window.location.href = "../login/login.html";
+} else {
+    console.log("Logged in User ID:", userId);
+    form.addEventListener("submit", async(event) => {
     event.preventDefault();
     const amount = event.target.amount.value;
     const description =  event.target.description.value;
@@ -12,8 +20,10 @@ form.addEventListener("submit", async(event) => {
     const expenseObj = {
         amount: amount,
         description: description,
-        category: category
+        category: category,
+        userId: userId
     }
+    console.log(expenseObj);
     try {
         if (editingId) {
             const res = await axios.put(`${BASE_URL}/edit/${editingId}`, expenseObj);
@@ -47,7 +57,7 @@ const showData = (data) => {
     delebtn.textContent = "Delete";
     delebtn.addEventListener("click", async () => {
         try {
-            await axios.delete(`${BASE_URL}/delete/${data.id}`);
+            await axios.delete(`${BASE_URL}/${userId}/delete/${data.id}`);
             ul.removeChild(list);
         } catch (error) {
             console.error(error);
@@ -75,7 +85,7 @@ const showData = (data) => {
 
 const fetchExpenseData = async () => {
     try{
-        const data = await axios.get(`${BASE_URL}/`); 
+        const data = await axios.get(`${BASE_URL}/${userId}`); 
         console.log(data.data.msg.length);
         let ul = document.getElementById("ul");
         ul.innerHTML = "";
@@ -92,3 +102,10 @@ const fetchExpenseData = async () => {
 
 
 window.addEventListener("DOMContentLoaded", fetchExpenseData())
+   
+}
+
+
+
+
+

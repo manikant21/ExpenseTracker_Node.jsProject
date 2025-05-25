@@ -3,9 +3,9 @@ import { deleteExpense, getExpense , insertExpense, editExpense} from "../contro
 
 const router = Router();
 
-router.get("/", getExpense);
+router.get("/:userId", getExpense);
 router.post("/add", insertExpense);
-router.delete("/delete/:id", deleteExpense);
+router.delete("/:userId/delete/:id", deleteExpense);
 router.put("/edit/:id", editExpense);
 
 export {router};

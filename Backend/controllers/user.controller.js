@@ -1,6 +1,9 @@
-import User from "../models/user.model.js";
+import {User} from "../models/user.model.js";
 import bcrypt from 'bcrypt';
+import dotenv from 'dotenv'
+import jwt from 'jsonwebtoken';
 
+dotenv.config();
 
 export const addUser = async(req, res) => {
     try{
@@ -30,6 +33,10 @@ export const addUser = async(req, res) => {
     }
 }
 
+function generateAccessToken(id, name) {
+    return jwt.sign({userId: id, name:name}, process.env.JWT_SECRECT)
+}
+
 export const loginUser = async(req, res) => {
     try {
         const {email, password} = req.body;
@@ -45,7 +52,7 @@ export const loginUser = async(req, res) => {
          if (!isMatch) {
             return res.status(401).json({ success: false, msg: "User not authorized" });
         }
-        return res.status(200).json({success: true, msg: "User login sucessful"});
+        return res.status(200).json({success: true, msg: "User login sucessful", user_id:user.id, token: generateAccessToken(user.id, user.name)});
 
     } catch (error) {
         console.log(error);

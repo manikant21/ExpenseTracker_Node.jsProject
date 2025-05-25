@@ -1,7 +1,8 @@
 import { sequelize } from "../config/db.config.js";
 import { Sequelize, DataTypes } from "sequelize";
+import {User} from "./user.model.js";
 
-const Expense = sequelize.define('Expense', {
+export const Expense = sequelize.define('Expense', {
     amount: {
         type: DataTypes.INTEGER,
         allowNull: false
@@ -17,4 +18,6 @@ const Expense = sequelize.define('Expense', {
 
 })
 
-export default Expense;
+User.hasMany(Expense, {foreignKey: "userId"});
+Expense.belongsTo(User, {foreignKey: "userId"});
+

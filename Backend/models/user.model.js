@@ -2,7 +2,7 @@ import { sequelize } from "../config/db.config.js";
 import { Sequelize, DataTypes } from "sequelize";
 
 
-const User = sequelize.define('User', {
+export const User = sequelize.define('User', {
     name: {
         type: DataTypes.STRING,
         allowNull: false
@@ -19,4 +19,3 @@ const User = sequelize.define('User', {
     }
 })
 
-export default User;
