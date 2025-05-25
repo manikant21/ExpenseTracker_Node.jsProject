@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <title>ExpenseTracker</title>
+</head>
+
+<body class="bg-gray-100 min-h-screen p-4 font-sans">
+    <div class="w-full bg-white p-6 rounded-lg shadow-md">
+        <h1 class="text-3xl font-bold text-center text-blue-600 mb-6">Expense Tracker</h1>
+
+        <form class="flex items-center justify-center flex-wrap gap-4 mb-6">
+            <!-- Amount -->
+            <div class="flex items-center gap-2">
+              <label for="amount" class="whitespace-nowrap font-semibold">Amount:</label>
+              <input id="amount" name="amount" type="number"
+                class="w-28 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300" />
+            </div>
+          
+            <!-- Description -->
+            <div class="flex items-center gap-2">
+              <label for="description" class="whitespace-nowrap font-semibold">Description:</label>
+              <input id="description" name="description" type="text"
+                class="w-32 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300" />
+            </div>
+          
+            <!-- Category -->
+            <div class="flex items-center gap-2">
+              <label for="category" class="whitespace-nowrap font-semibold">Category:</label>
+              <select id="category"
+                class="w-28 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300">
+                <option value="movie">Movie</option>
+                <option value="rent">Rent</option>
+                <option value="food">Food</option>
+                <option value="travel">Travel</option>
+                <option value="gym">Gym</option>
+                <option value="shopping">Shopping</option>
+              </select>
+            </div>
+          
+            <!-- Add Button -->
+            <button id="add-btn" type="submit"
+              class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all text-base">
+              Add
+            </button>
+          </form>
+          
+          
+    </div>
+
+    <!-- Displaying data on screen -->
+    <div class="max-w-xl mt-6">
+        <ul id="ul" class="space-y-3 list-disc p-4">
+
+        </ul>
+    </div>
+
+
+    <script src="expense.js"></script>
+</body>
+
+</html>
