@@ -34,7 +34,7 @@ export const addUser = async(req, res) => {
 }
 
 function generateAccessToken(id, name) {
-    return jwt.sign({userId: id, name:name}, process.env.JWT_SECRECT)
+    return jwt.sign({userId: id, name: name}, process.env.JWT_SECRET)
 }
 
 export const loginUser = async(req, res) => {

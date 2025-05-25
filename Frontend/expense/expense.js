@@ -1,17 +1,21 @@
+
+
 const BASE_URL = "http://localhost:3000/api/v1/expense";
 let editingId = null;
-const userId = localStorage.getItem("userId");
+const token = localStorage.getItem("token")
+// const userId = localStorage.getItem("userId");
 const form = document.querySelector("form");
 const logout = document.getElementById("logout");
 
 logout.addEventListener('click', ()=> {
-    localStorage.removeItem("userId");
+    // localStorage.removeItem("userId");
+    localStorage.removeItem("token");
     window.location.href = "../login/login.html";
 })
-if (!userId) {
+if (!token) {
     window.location.href = "../login/login.html";
 } else {
-    console.log("Logged in User ID:", userId);
+    console.log("Logged in User token:", token);
     form.addEventListener("submit", async(event) => {
     event.preventDefault();
     const amount = event.target.amount.value;
@@ -20,17 +24,24 @@ if (!userId) {
     const expenseObj = {
         amount: amount,
         description: description,
-        category: category,
-        userId: userId
+        category: category
     }
     console.log(expenseObj);
     try {
         if (editingId) {
-            const res = await axios.put(`${BASE_URL}/edit/${editingId}`, expenseObj);
+            const res = await axios.put(`${BASE_URL}/edit/${editingId}`, expenseObj, {
+                headers: {
+                    "Authorization": token
+                }
+            });
             console.log("Edited:", res.data.data);
             editingId = null;
         } else {
-        const res = await axios.post(`${BASE_URL}/add`, expenseObj);
+        const res = await axios.post(`${BASE_URL}/add`, expenseObj, {
+             headers: {
+                    "Authorization": token
+                }
+        });
         console.log(res.data);
         // showData(res.data.user);
 
@@ -57,7 +68,11 @@ const showData = (data) => {
     delebtn.textContent = "Delete";
     delebtn.addEventListener("click", async () => {
         try {
-            await axios.delete(`${BASE_URL}/${userId}/delete/${data.id}`);
+            await axios.delete(`${BASE_URL}/delete/${data.id}`, {
+                headers: {
+                    "Authorization": token
+                }
+            });
             ul.removeChild(list);
         } catch (error) {
             console.error(error);
@@ -85,7 +100,11 @@ const showData = (data) => {
 
 const fetchExpenseData = async () => {
     try{
-        const data = await axios.get(`${BASE_URL}/${userId}`); 
+        const data = await axios.get(`${BASE_URL}/`, {
+            headers: {
+                    "Authorization": token
+                }
+        }); 
         console.log(data.data.msg.length);
         let ul = document.getElementById("ul");
         ul.innerHTML = "";

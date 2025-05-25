@@ -4,10 +4,10 @@ import { User } from "../models/user.model.js";
 
 export const getExpense = async (req, res) => {
     try {
-        const { userId } = req.params;
+        // const { userId } = req.params;
         const expense = await Expense.findAll({
             where: {
-                userId: userId
+                userId: req.user.id
             },
             include: [{ model: User }]
         });
@@ -20,15 +20,15 @@ export const getExpense = async (req, res) => {
 
 export const insertExpense = async (req, res) => {
     try {
-        const { amount, description, category, userId } = req.body;
-        if (!amount || !description || !category || !userId) {
+        const { amount, description, category } = req.body;
+        if (!amount || !description || !category) {
             return res.status(400).json({ msg: "Please fill all the fileds" })
         }
         const expense = await Expense.create({
             amount: amount,
             description: description,
             category: category,
-            userId: userId
+            userId: req.user.id
         })
         return res.status(201).json({ msg: expense });
 
@@ -41,7 +41,7 @@ export const insertExpense = async (req, res) => {
 
 export const deleteExpense = async (req, res) => {
     try {
-        const { id, userId } = req.params;
+        const { id} = req.params;
         // const expense = await Expense.findByPk(id);
         // if(!expense) {
         //     return res.status(400).json({msg: "Expense not found"});
@@ -57,7 +57,7 @@ export const deleteExpense = async (req, res) => {
         const expense = await Expense.findOne({
             where: {
                 id: id,
-                userId: userId
+                userId: req.user.id
             }
         });
 
@@ -76,9 +76,9 @@ export const deleteExpense = async (req, res) => {
 export const editExpense = async (req, res) => {
     try {
         const { id } = req.params;
-        const { amount, description, category, userId } = req.body;
+        const { amount, description, category} = req.body;
         const expense = await Expense.findOne({
-            where: { id, userId }
+            where: { id, userId: req.user.id }
         });
         if (!expense) {
             return res.status(400).json({ msg: "Expense not found" });

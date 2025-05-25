@@ -21,9 +21,11 @@ login_form.addEventListener('submit', async(event) => {
         const response = await axios.post(`${BASE_URL_USER}/login`, loginDetails);
         alert("User loggedin successfully");
         console.log("User loggedin successfully");
-        console.log(response.data.user_id);
-        const userId = response.data.user_id;
-        localStorage.setItem("userId", userId);
+        // console.log(response.data.user_id);
+        // const userId = response.data.user_id;
+        // localStorage.setItem("userId", userId);
+        console.log(response.data);
+        localStorage.setItem("token", response.data.token);
         email_login.value = "";
         password_login.value = "";
         window.location.href = "../expense/expense.html";
