@@ -59,3 +59,12 @@ export const loginUser = async(req, res) => {
         return res.status(500).json({success:false, msg: "Something went wrong"});
     }
 }
+
+export const getUserStatus = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.user.id); 
+    res.json({ isPremium: user.isPremium });
+  } catch (err) {
+    res.status(500).json({ error: "Unable to fetch user status" });
+  }
+};

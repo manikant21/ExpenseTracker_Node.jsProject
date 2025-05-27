@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
+    <script src="expense.js" defer></script>
     <title>ExpenseTracker</title>
 </head>
 
@@ -49,7 +51,8 @@
             </button>
           </form>
 
-          <div id="logout_Div" class="fixed top-12 right-10">
+          <div id="logout_Div" class="fixed top-12 right-10 flex gap-2">
+            <button id="buyPremiumBtn" class="p-2 bg-blue-400 cursor-pointer rounded-md text-white focus:ring-green-300">Buy Premium Membership</button>
             <button id="logout" class="p-2 bg-green-400 cursor-pointer rounded-md text-white focus:ring-red-300">Logout</button>
           </div>
           
@@ -64,7 +67,11 @@
     </div>
 
 
-    <script src="expense.js"></script>
+    <div id="dropin-container"></div>
+
+
+
+    
 </body>
 
 </html>

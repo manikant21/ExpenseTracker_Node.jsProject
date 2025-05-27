@@ -1,10 +1,12 @@
 import {Router} from "express";
-import { addUser, loginUser} from "../controllers/user.controller.js";
+import { addUser, loginUser, getUserStatus} from "../controllers/user.controller.js";
+import { authenticate } from "../middlewares/auth.js";
 
 
 const router = Router();
 
 router.post("/register", addUser);
 router.post("/login", loginUser);
+router.get("/status", authenticate, getUserStatus);
 
 export {router};
