@@ -1,5 +1,7 @@
 import { Expense } from "../models/expense.model.js";
 import { User } from "../models/user.model.js";
+import { Sequelize } from "sequelize";
+
 
 
 export const getExpense = async (req, res) => {
@@ -41,7 +43,7 @@ export const insertExpense = async (req, res) => {
 
 export const deleteExpense = async (req, res) => {
     try {
-        const { id} = req.params;
+        const { id } = req.params;
         // const expense = await Expense.findByPk(id);
         // if(!expense) {
         //     return res.status(400).json({msg: "Expense not found"});
@@ -76,7 +78,7 @@ export const deleteExpense = async (req, res) => {
 export const editExpense = async (req, res) => {
     try {
         const { id } = req.params;
-        const { amount, description, category} = req.body;
+        const { amount, description, category } = req.body;
         const expense = await Expense.findOne({
             where: { id, userId: req.user.id }
         });
@@ -96,5 +98,31 @@ export const editExpense = async (req, res) => {
     } catch (error) {
         console.log(error.message);
         return res.status(500).json({ msg: "Unable to update data into DB" });
+    }
+}
+
+export const getTotalExpenseByEachUser = async (req, res) => {
+    try {
+        const result = await Expense.findAll({
+            attributes: [
+                'userId',
+                [Sequelize.fn('SUM', Sequelize.col('amount')), 'totalExpense']
+            ],
+            group: ['userId'],
+            include: [
+                {
+                    model: User,
+                    attributes: ['name', 'email']
+                }
+            ],
+            order: [
+                [Sequelize.fn("SUM", Sequelize.col("amount")), "DESC"],
+            ],
+        });
+
+        return res.status(200).json({ result });
+    } catch (error) {
+        console.log(error.message);
+        return res.status(500).json({ msg: "Unable to expense data for each user from DB" });
     }
 }

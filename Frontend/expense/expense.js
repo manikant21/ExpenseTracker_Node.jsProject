@@ -6,6 +6,14 @@ const form = document.querySelector("form");
 const logout = document.getElementById("logout");
 // const premium = document.getElementById("premium");
 const cashfree = Cashfree({ mode: "sandbox" });
+const leaderbordBtnContainer = document.getElementById("leaderbordBtnContainer");
+const leaderbordBtn = document.getElementById("leaderbordBtn");
+const leaderbordContainer = document.getElementById("leaderbordContainer");
+const ul_leader = document.getElementById("ul_leader");
+let isPremium = false;
+let isLeaderboardVisible = false;
+
+
 
 
 
@@ -20,7 +28,7 @@ document.getElementById("buyPremiumBtn").addEventListener("click", async () => {
 
         const paymentSessionId = response.data.paymentSessionId;
 
-        
+
         const checkoutOptions = {
             paymentSessionId,
             redirectTarget: "_self"
@@ -34,20 +42,31 @@ document.getElementById("buyPremiumBtn").addEventListener("click", async () => {
     }
 });
 
-
-
 document.addEventListener("DOMContentLoaded", async () => {
   try {
-    const response = await axios.get("http://localhost:3000/api/v1/user/status", { 
-         headers: {
-                "Authorization": token
-            }
-     });
-    const isPremium = response.data.isPremium;
-    // console.log(isPremium);
+    const response = await axios.get("http://localhost:3000/api/v1/user/status", {
+      headers: { "Authorization": token }
+    });
+
+    isPremium = response.data.isPremium;
 
     if (isPremium) {
       document.getElementById("buyPremiumBtn").style.display = "none";
+      leaderbordBtnContainer.classList.remove("hidden");
+
+      leaderbordBtn.addEventListener("click", async () => {
+        if (!isLeaderboardVisible) {
+          leaderbordContainer.classList.remove("hidden");
+          await fetchLeaderData();
+          isLeaderboardVisible = true;
+        }
+      });
+
+    
+      closeLeaderBtn.addEventListener("click", () => {
+        leaderbordContainer.classList.add("hidden");
+        isLeaderboardVisible = false;
+      });
     }
   } catch (err) {
     console.error("Error checking premium status:", err);
@@ -55,6 +74,33 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 
+
+const fetchLeaderData = async () => {
+    try {
+        const response = await axios.get(`${BASE_URL}/allexpensedetails`, {
+            headers: {
+                "Authorization": token
+            }
+        })
+        console.log(response.data.result);
+        let ul_leader = document.getElementById("ul_leader");
+        ul_leader.innerHTML = "";
+        for (let i = 0; i < response.data.result.length; i++) {
+            showLeaderboardData(response.data.result[i]);
+        }
+    } catch (error) {
+        console.error("Error occures in fetching leaderboard details:", error);
+        alert("Something went wrong. Please try again later.");
+    }
+}
+
+const showLeaderboardData = (data) => {
+    console.log(data.User.name, data.totalExpense);
+    let ul_leader = document.getElementById("ul_leader");
+    let list = document.createElement("li");
+    list.textContent = `Name: ${data.User.name};Total Expense: ${data.totalExpense}`;
+     ul_leader.appendChild(list);
+}
 
 logout.addEventListener('click', () => {
     // localStorage.removeItem("userId");
@@ -84,6 +130,9 @@ if (!token) {
                         "Authorization": token
                     }
                 });
+                if(isPremium) {
+                    fetchLeaderData();
+                }
                 console.log("Edited:", res.data.data);
                 editingId = null;
             } else {
@@ -93,6 +142,9 @@ if (!token) {
                     }
                 });
                 console.log(res.data);
+                if(isPremium) {
+                    fetchLeaderData();
+                }
                 // showData(res.data.user);
 
             }
@@ -124,6 +176,9 @@ if (!token) {
                     }
                 });
                 ul.removeChild(list);
+                if(isPremium) {
+                    fetchLeaderData();
+                }
             } catch (error) {
                 console.error(error);
             }

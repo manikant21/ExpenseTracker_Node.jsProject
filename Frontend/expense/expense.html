@@ -51,6 +51,12 @@
             </button>
           </form>
 
+          <div id="leaderbordBtnContainer" class="flex items-center gap-1 m-1 justify-center hidden">
+            <h4 class="font-bold text-blue-600">You are a premium member</h4>
+            <button id="leaderbordBtn" class="bg-purple-200 p-1 rounded-md cursor-pointer">Show Leaderboard</button>
+            <button id="closeLeaderBtn" class="ml-2 text-sm text-red-600">✕</button>
+          </div>
+
           <div id="logout_Div" class="fixed top-12 right-10 flex gap-2">
             <button id="buyPremiumBtn" class="p-2 bg-blue-400 cursor-pointer rounded-md text-white focus:ring-green-300">Buy Premium Membership</button>
             <button id="logout" class="p-2 bg-green-400 cursor-pointer rounded-md text-white focus:ring-red-300">Logout</button>
@@ -60,11 +66,23 @@
     </div>
 
     <!-- Displaying data on screen -->
-    <div class="max-w-xl mt-6">
+    <div class="mt-6 w-[100%]">
+        <h1 class="text-center font-bold text-orange-300 text-2xl">Expenses</h1>
         <ul id="ul" class="space-y-3 list-disc p-4">
 
         </ul>
     </div>
+
+
+    <!-- Displaying Leaderbord -->
+     <div id="leaderbordContainer" class="mt-4 w-[100%] hidden">
+        <h1 class="text-center font-bold text-pink-900 text-2xl">Leader Board</h1>
+        <ul id="ul_leader" class="space-y-3 list-disc p-4">
+
+        </ul>
+        
+
+     </div>
 
 
     <div id="dropin-container"></div>
