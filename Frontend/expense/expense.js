@@ -43,34 +43,34 @@ document.getElementById("buyPremiumBtn").addEventListener("click", async () => {
 });
 
 document.addEventListener("DOMContentLoaded", async () => {
-  try {
-    const response = await axios.get("http://localhost:3000/api/v1/user/status", {
-      headers: { "Authorization": token }
-    });
+    try {
+        const response = await axios.get("http://localhost:3000/api/v1/user/status", {
+            headers: { "Authorization": token }
+        });
 
-    isPremium = response.data.isPremium;
+        isPremium = response.data.isPremium;
 
-    if (isPremium) {
-      document.getElementById("buyPremiumBtn").style.display = "none";
-      leaderbordBtnContainer.classList.remove("hidden");
+        if (isPremium) {
+            document.getElementById("buyPremiumBtn").style.display = "none";
+            leaderbordBtnContainer.classList.remove("hidden");
 
-      leaderbordBtn.addEventListener("click", async () => {
-        if (!isLeaderboardVisible) {
-          leaderbordContainer.classList.remove("hidden");
-          await fetchLeaderData();
-          isLeaderboardVisible = true;
+            leaderbordBtn.addEventListener("click", async () => {
+                if (!isLeaderboardVisible) {
+                    leaderbordContainer.classList.remove("hidden");
+                    await fetchLeaderData();
+                    isLeaderboardVisible = true;
+                }
+            });
+
+
+            closeLeaderBtn.addEventListener("click", () => {
+                leaderbordContainer.classList.add("hidden");
+                isLeaderboardVisible = false;
+            });
         }
-      });
-
-    
-      closeLeaderBtn.addEventListener("click", () => {
-        leaderbordContainer.classList.add("hidden");
-        isLeaderboardVisible = false;
-      });
+    } catch (err) {
+        console.error("Error checking premium status:", err);
     }
-  } catch (err) {
-    console.error("Error checking premium status:", err);
-  }
 });
 
 
@@ -95,11 +95,12 @@ const fetchLeaderData = async () => {
 }
 
 const showLeaderboardData = (data) => {
-    console.log(data.User.name, data.totalExpense);
+    console.log(data.name, data.totalExpense);
+    const totalExpense = data.totalExpense ?? 0;
     let ul_leader = document.getElementById("ul_leader");
     let list = document.createElement("li");
-    list.textContent = `Name: ${data.User.name};Total Expense: ${data.totalExpense}`;
-     ul_leader.appendChild(list);
+    list.textContent = `Name: ${data.name};Total Expense: ${totalExpense}`;
+    ul_leader.appendChild(list);
 }
 
 logout.addEventListener('click', () => {
@@ -130,7 +131,7 @@ if (!token) {
                         "Authorization": token
                     }
                 });
-                if(isPremium) {
+                if (isPremium) {
                     fetchLeaderData();
                 }
                 console.log("Edited:", res.data.data);
@@ -142,7 +143,7 @@ if (!token) {
                     }
                 });
                 console.log(res.data);
-                if(isPremium) {
+                if (isPremium) {
                     fetchLeaderData();
                 }
                 // showData(res.data.user);
@@ -176,7 +177,7 @@ if (!token) {
                     }
                 });
                 ul.removeChild(list);
-                if(isPremium) {
+                if (isPremium) {
                     fetchLeaderData();
                 }
             } catch (error) {

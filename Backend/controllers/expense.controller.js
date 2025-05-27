@@ -103,22 +103,40 @@ export const editExpense = async (req, res) => {
 
 export const getTotalExpenseByEachUser = async (req, res) => {
     try {
-        const result = await Expense.findAll({
+        // const result = await Expense.findAll({
+        //     attributes: [
+        //         'userId',
+        //         [Sequelize.fn('SUM', Sequelize.col('amount')), 'totalExpense']
+        //     ],
+        //     group: ['userId'],
+        //     include: [
+        //         {
+        //             model: User,
+        //             attributes: ['name', 'email']
+        //         }
+        //     ],
+        //     order: [
+        //         [Sequelize.fn("SUM", Sequelize.col("amount")), "DESC"],
+        //     ],
+        // });
+
+        const result = await User.findAll({
             attributes: [
-                'userId',
-                [Sequelize.fn('SUM', Sequelize.col('amount')), 'totalExpense']
+                'id',
+                'name',
+                'email',
+                [Sequelize.fn('SUM', Sequelize.col('Expenses.amount')), 'totalExpense']
             ],
-            group: ['userId'],
             include: [
                 {
-                    model: User,
-                    attributes: ['name', 'email']
+                    model: Expense,
+                    attributes: []
                 }
             ],
-            order: [
-                [Sequelize.fn("SUM", Sequelize.col("amount")), "DESC"],
-            ],
+            group: ['User.id'],
+            order: [[Sequelize.fn('SUM', Sequelize.col('Expenses.amount')), 'DESC']]
         });
+
 
         return res.status(200).json({ result });
     } catch (error) {
