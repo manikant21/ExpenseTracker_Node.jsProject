@@ -1,6 +1,7 @@
 import { Expense } from "../models/expense.model.js";
 import { User } from "../models/user.model.js";
 import { Sequelize } from "sequelize";
+import { sequelize } from "../config/db.config.js";
 
 
 
@@ -21,9 +22,11 @@ export const getExpense = async (req, res) => {
 }
 
 export const insertExpense = async (req, res) => {
+    const transaction = await sequelize.transaction();
     try {
         const { amount, description, category } = req.body;
         if (!amount || !description || !category) {
+            await transaction.rollback();
             return res.status(400).json({ msg: "Please fill all the fileds" })
         }
         // console.log(typeof amount);
@@ -31,31 +34,37 @@ export const insertExpense = async (req, res) => {
         // const totalExpenses = req.user.totalExpenses + amount;
         // console.log(totalExpenses);
         const totalExpenses = Number(req.user.totalExpenses) + Number(amount);
-        const users = await User.update({
-            totalExpenses: totalExpenses
-        }, {
-            where: {
-                id: req.user.id
-            }
-        })
 
         const expense = await Expense.create({
             amount: amount,
             description: description,
             category: category,
             userId: req.user.id
-        })
+        }, { transaction })
         console.log(expense);
+        await User.update({
+            totalExpenses: totalExpenses
+        }, {
+            where: {
+                id: req.user.id
+            },
+            transaction
+        },)
+
+        await transaction.commit();
+
         return res.status(201).json({ msg: expense });
 
 
     } catch (error) {
         console.log(error.message);
+        await transaction.rollback();
         return res.status(500).json({ msg: "Unable to insert data into DB" });
     }
 }
 
 export const deleteExpense = async (req, res) => {
+    const transaction = await sequelize.transaction();
     try {
         const { id } = req.params;
         // const expense = await Expense.findByPk(id);
@@ -78,26 +87,32 @@ export const deleteExpense = async (req, res) => {
         });
 
         if (!expense) {
+            await transaction.rollback();
             return res.status(400).json({ msg: "Expense not found or unauthorized" });
         }
         const amount = Number(expense.amount)
         const totalExpenses = Number(req.user.totalExpenses) - Number(amount);
-        const users = await User.update({
+       
+        await Expense.destroy({ where: { id }, transaction });
+        await User.update({
             totalExpenses: totalExpenses
         }, {
             where: {
                 id: req.user.id
-            }
+            },
+            transaction
         })
-        await Expense.destroy({ where: { id } });
+        await transaction.commit();
         return res.status(200).json({ msg: "Expense deleted successfully" });
     } catch (error) {
         console.log(error.message);
+        await transaction.rollback();
         return res.status(500).json({ msg: "Unable to delete expense from DB" });
     }
 }
 
 export const editExpense = async (req, res) => {
+    const transaction = await sequelize.transaction();
     try {
         const { id } = req.params;
         const { amount, description, category } = req.body;
@@ -105,6 +120,7 @@ export const editExpense = async (req, res) => {
             where: { id, userId: req.user.id }
         });
         if (!expense) {
+            await transaction.rollback();
             return res.status(400).json({ msg: "Expense not found" });
         }
         const prevAmount = Number(expense.amount);
@@ -113,17 +129,20 @@ export const editExpense = async (req, res) => {
         const updatedTotal = Number(req.user.totalExpenses) - prevAmount + newAmount;
 
         // Update the user's totalExpenses
-        await User.update(
-            { totalExpenses: updatedTotal },
-            { where: { id: req.user.id } }
-        );
+        
         const data = await Expense.update({
             amount: newAmount,
             description: description,
             category: category
         }, {
-            where: { id }
+            where: { id },
+            transaction
         })
+
+        await User.update(
+            { totalExpenses: updatedTotal },
+            { where: { id: req.user.id }, transaction }
+        );
         // const new_amount = Number(amount)
         // const totalNewExpenses = Number(req.user.totalExpenses) + Number(new_amount);
         // const user = await User.update({
@@ -133,10 +152,12 @@ export const editExpense = async (req, res) => {
         //         id: req.user.id
         //     }
         // })
+        await transaction.commit();
         return res.status(200).json({ msg: data });
 
     } catch (error) {
         console.log(error.message);
+        await transaction.rollback();
         return res.status(500).json({ msg: "Unable to update data into DB" });
     }
 }
