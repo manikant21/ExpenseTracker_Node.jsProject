@@ -86,6 +86,7 @@ const fetchLeaderData = async () => {
         let ul_leader = document.getElementById("ul_leader");
         ul_leader.innerHTML = "";
         for (let i = 0; i < response.data.result.length; i++) {
+            // console.log(response.data.result[i]);
             showLeaderboardData(response.data.result[i]);
         }
     } catch (error) {
@@ -95,11 +96,11 @@ const fetchLeaderData = async () => {
 }
 
 const showLeaderboardData = (data) => {
-    console.log(data.name, data.totalExpense);
-    const totalExpense = data.totalExpense ?? 0;
+    console.log(data.name, data.totalExpenses);
+    // const totalExpense = data.totalExpense ?? 0;
     let ul_leader = document.getElementById("ul_leader");
     let list = document.createElement("li");
-    list.textContent = `Name: ${data.name};Total Expense: ${totalExpense}`;
+    list.textContent = `Name: ${data.name};Total Expense: ${data.totalExpenses}`;
     ul_leader.appendChild(list);
 }
 

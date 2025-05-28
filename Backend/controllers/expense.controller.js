@@ -26,12 +26,26 @@ export const insertExpense = async (req, res) => {
         if (!amount || !description || !category) {
             return res.status(400).json({ msg: "Please fill all the fileds" })
         }
+        // console.log(typeof amount);
+        // console.log(typeof req.user.totalExpenses);
+        // const totalExpenses = req.user.totalExpenses + amount;
+        // console.log(totalExpenses);
+        const totalExpenses = Number(req.user.totalExpenses) + Number(amount);
+        const users = await User.update({
+            totalExpenses: totalExpenses
+        }, {
+            where: {
+                id: req.user.id
+            }
+        })
+
         const expense = await Expense.create({
             amount: amount,
             description: description,
             category: category,
             userId: req.user.id
         })
+        console.log(expense);
         return res.status(201).json({ msg: expense });
 
 
@@ -66,7 +80,15 @@ export const deleteExpense = async (req, res) => {
         if (!expense) {
             return res.status(400).json({ msg: "Expense not found or unauthorized" });
         }
-
+        const amount = Number(expense.amount)
+        const totalExpenses = Number(req.user.totalExpenses) - Number(amount);
+        const users = await User.update({
+            totalExpenses: totalExpenses
+        }, {
+            where: {
+                id: req.user.id
+            }
+        })
         await Expense.destroy({ where: { id } });
         return res.status(200).json({ msg: "Expense deleted successfully" });
     } catch (error) {
@@ -85,14 +107,32 @@ export const editExpense = async (req, res) => {
         if (!expense) {
             return res.status(400).json({ msg: "Expense not found" });
         }
+        const prevAmount = Number(expense.amount);
+        console.log(prevAmount);
+        const newAmount = Number(amount);
+        const updatedTotal = Number(req.user.totalExpenses) - prevAmount + newAmount;
+
+        // Update the user's totalExpenses
+        await User.update(
+            { totalExpenses: updatedTotal },
+            { where: { id: req.user.id } }
+        );
         const data = await Expense.update({
-            amount: amount,
+            amount: newAmount,
             description: description,
             category: category
         }, {
             where: { id }
         })
-
+        // const new_amount = Number(amount)
+        // const totalNewExpenses = Number(req.user.totalExpenses) + Number(new_amount);
+        // const user = await User.update({
+        //     totalExpenses: totalNewExpenses
+        // }, {
+        //     where: {
+        //         id: req.user.id
+        //     }
+        // })
         return res.status(200).json({ msg: data });
 
     } catch (error) {
@@ -119,24 +159,27 @@ export const getTotalExpenseByEachUser = async (req, res) => {
         //         [Sequelize.fn("SUM", Sequelize.col("amount")), "DESC"],
         //     ],
         // });
-
+        // -------------------------------left join on user
+        // const result = await User.findAll({
+        //     attributes: [
+        //         'id',
+        //         'name',
+        //         'email',
+        //         [Sequelize.fn('SUM', Sequelize.col('Expenses.amount')), 'totalExpense']
+        //     ],
+        //     include: [
+        //         {
+        //             model: Expense,
+        //             attributes: []
+        //         }
+        //     ],
+        //     group: ['User.id'],
+        //     order: [[Sequelize.fn('SUM', Sequelize.col('Expenses.amount')), 'DESC']]
+        // });
+        // -------------optimised way
         const result = await User.findAll({
-            attributes: [
-                'id',
-                'name',
-                'email',
-                [Sequelize.fn('SUM', Sequelize.col('Expenses.amount')), 'totalExpense']
-            ],
-            include: [
-                {
-                    model: Expense,
-                    attributes: []
-                }
-            ],
-            group: ['User.id'],
-            order: [[Sequelize.fn('SUM', Sequelize.col('Expenses.amount')), 'DESC']]
-        });
-
+            order: [['totalExpenses', 'DESC']]
+        })
 
         return res.status(200).json({ result });
     } catch (error) {

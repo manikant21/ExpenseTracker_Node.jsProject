@@ -17,10 +17,14 @@ export const User = sequelize.define('User', {
         type: DataTypes.STRING,
         allowNull: false
     },
-    
+
     isPremium: {
     type: DataTypes.BOOLEAN,
     defaultValue: false
+  },
+  totalExpenses: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0
   }
 })
 
