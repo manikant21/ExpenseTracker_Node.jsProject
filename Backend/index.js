@@ -5,6 +5,7 @@ import { sequelize } from "./config/db.config.js";
 import {router as userRoute} from "./routes/user.route.js";
 import { router as expenseRouter } from "./routes/expense.route.js";
 import { router as premiumRouter } from './routes/payment.route.js';
+import {router as forgotPasswordRouter} from './routes/password.route.js'
 import cors from "cors";
 
 
@@ -23,6 +24,7 @@ const PORT = process.env.PORT || 5000;
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/expense", expenseRouter);
 app.use("/api/v1/payment", premiumRouter);
+app.use("/api/v1/password", forgotPasswordRouter);
 
 await sequelize.sync();
 
