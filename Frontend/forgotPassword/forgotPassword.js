@@ -17,3 +17,11 @@ form.addEventListener('submit', async (event) => {
     }
     
 })
+
+document.getElementById("cancel").addEventListener('click', () => {
+    
+    const path = window.location.pathname;
+    console.log(path);
+    window.location.href = "../login/login.html"
+
+})

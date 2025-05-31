@@ -8,6 +8,7 @@ const logout = document.getElementById("logout");
 const cashfree = Cashfree({ mode: "sandbox" });
 const leaderbordBtnContainer = document.getElementById("leaderbordBtnContainer");
 const leaderbordBtn = document.getElementById("leaderbordBtn");
+const closeLeaderBtn = document.getElementById("closeLeaderBtn");
 const leaderbordContainer = document.getElementById("leaderbordContainer");
 const ul_leader = document.getElementById("ul_leader");
 let isPremium = false;
@@ -57,6 +58,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             leaderbordBtn.addEventListener("click", async () => {
                 if (!isLeaderboardVisible) {
                     leaderbordContainer.classList.remove("hidden");
+                    closeLeaderBtn.classList.remove("hidden"); 
                     await fetchLeaderData();
                     isLeaderboardVisible = true;
                 }
@@ -65,6 +67,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             closeLeaderBtn.addEventListener("click", () => {
                 leaderbordContainer.classList.add("hidden");
+                closeLeaderBtn.classList.add("hidden");
                 isLeaderboardVisible = false;
             });
         }

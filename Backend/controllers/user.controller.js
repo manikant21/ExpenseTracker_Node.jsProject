@@ -20,6 +20,7 @@ export const addUser = async(req, res) => {
             return res.status(409).json({msg:"This Email already exist in DB"});
         }
         const hashedPassword = await bcrypt.hash(password, 10);
+        
         const user = await User.create({
             name: name,
             email: email,

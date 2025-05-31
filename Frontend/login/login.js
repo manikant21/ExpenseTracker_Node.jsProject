@@ -31,7 +31,7 @@ login_form.addEventListener('submit', async(event) => {
         window.location.href = "../expense/expense.html";
      }
      catch(error) {
-        console.log(error.response.status);
+        console.log(error.response);
         if(error.response.status == 404) {
             alert("Please enter valid email")
         }

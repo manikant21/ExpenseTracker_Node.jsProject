@@ -1,29 +1,127 @@
-
+import { sequelize } from '../config/db.config.js';
 import { sendResetPasswordEmail } from '../services/forgotPassword.js';
+import { User } from '../models/user.model.js';
+import { v4 as uuidv4 } from 'uuid';
+import { ForgotPasswordRequests } from '../models/forgotPasswordRequests.model.js';
+import bcrypt from 'bcrypt';
 
+
+
+
+export const forgotPassword = async (req, res) => {
+    const transaction = await sequelize.transaction();
+    try {
+        const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({ msg: "Email is required" });
+        }
+        const user = await User.findOne({
+            where: {
+                email: email
+            }
+        }, { transaction })
+        if (!user) {
+            await transaction.rollback();
+            return res.status(400).json({ msg: "No such email present in DB" })
+        }
+        console.log(user);
+        const id = uuidv4();
+        await ForgotPasswordRequests.create({
+            id: id,
+            isActive: true,
+            userId: user.id,
+            expiresAt: new Date(Date.now() + 10 * 60 * 1000)
+        }, { transaction })
+
+        // const resetToken = "generated-token"; // generate securely in production
+        // const resetLink = `https://your-frontend.com/reset-password?token=${resetToken}`;
+        const resetLink = `http://localhost:3000/api/v1/password/resetpassword/${id}`;
+
+        await sendResetPasswordEmail(email, resetLink);
+
+        await transaction.commit();
+        return res.status(200).json({ msg: "Reset password email sent" });
+    } catch (err) {
+        console.log(err);
+        await transaction.rollback();
+        return res.status(500).json({ msg: "Failed to send email" });
+    }
+};
 
 
 export const resetPassword = async (req, res) => {
- 
-  try {
-     const { email } = req.body;
+    try {
+        const { id } = req.params;
+        const passwordChange = await ForgotPasswordRequests.findOne({
+            where: {
+                id: id
+            }
+        })
 
-  if (!email) {
-    return res.status(400).json({ msg: "Email is required" });
-  }
+        if (!passwordChange  || !passwordChange.isActive || new Date() > passwordChange.expiresAt) {
+            return res.status(404).send('Invalid password reset link');
+        }
+        await passwordChange.update({
+            isActive: false
+        })
+        return res.status(200).send(`
+            <html>
+                <head>
+                    <title>Reset Password</title>
+                </head>
+                <body>
+                    <form action="/api/v1/password/updatepassword/${id}" method="POST">
+                        <label for="newpassword">Enter New Password:</label>
+                        <input type="password" name="newpassword" required />
+                        <button type="submit">Reset Password</button>
+                    </form>
+                </body>
+            </html>
+            `)
 
-    // const resetToken = "generated-token"; // generate securely in production
-    // const resetLink = `https://your-frontend.com/reset-password?token=${resetToken}`;
-    const resetLink = "https://www.google.com/";
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ msg: "Failed to Reset Password" });
+    }
+}
 
-    await sendResetPasswordEmail(email, resetLink);
 
-    return res.status(200).json({ msg: "Reset password email sent" });
-  } catch (err) {
-    console.log(err);
-    return res.status(500).json({ msg: "Failed to send email" });
-  }
-};
+export const updatePassword = async (req, res) => {
+    const transaction = await sequelize.transaction();
+    try {
+        const { newpassword } = req.body;
+        console.log(newpassword);
+        const { id } = req.params;
+        console.log(id);
+        const forgotRequest = await ForgotPasswordRequests.findByPk(id);
+        if(!forgotRequest) {
+            await transaction.rollback();
+            return res.status(404).json({msg: "Invalid Id for forgot request"})
+        }
+        const user = await User.findOne({
+            where: {
+                id: forgotRequest.userId
+            }
+        }, {transaction});
+
+         if (!user) {
+            await transaction.rollback();
+            return res.status(404).json({ msg: "User not found" });
+        }
+        const hashedPassword = await bcrypt.hash(newpassword, 10);
+
+        await user.update({password: hashedPassword},{transaction});
+        await transaction.commit();
+        return res.redirect("http://127.0.0.1:5500/Frontend/login/login.html");
+
+    } catch (error) {
+        console.log(error);
+        await transaction.rollback();
+        return res.status(500).json({ msg: "Failed to  update new Password" });
+    }
+}
+
+
 
 
 
