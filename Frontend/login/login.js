@@ -5,6 +5,8 @@ const login_form = document.getElementById("login_form");
 const email_login = document.getElementById("email_login");
 const password_login = document.getElementById("password_login");
 
+
+
 if(login_form) {
 login_form.addEventListener('submit', async(event) => {
     event.preventDefault();

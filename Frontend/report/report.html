@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <title>Document</title>
+</head>
+
+<body class="bg-zinc-900">
+    <div>
+        <h1 class="text-center text-2xl font-bold text-red-400">Expense Report</h1>
+        <div class="text-center mt-4">
+            <label for="filterType" class="text-white mr-2">Filter by:</label>
+            <select id="filterType" class="px-4 py-2 rounded bg-white text-black cursor-pointer w-28">
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+            </select>
+
+            <div class="text-center mt-4">
+                <button id="downloadPdfBtn"
+                    class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 cursor-pointer rounded hidden">
+                    Download PDF
+                </button>
+            </div>
+
+        </div>
+
+        <div class="absolute top-4 right-4 flex gap-2">
+            <button class="bg-blue-600 p-2 rounded-md cursor-pointer text-white font-bold" id="returnBtn">Retun To Home</button>
+            <button class="bg-green-600 p-2 rounded-md cursor-pointer text-white font-bold" id="logout">Logout</button>
+        </div>
+
+        <div class="m-4 text-white" id="tableContainer"></div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="report.js"></script>
+</body>
+
+</html>

@@ -5,7 +5,8 @@ import { sequelize } from "./config/db.config.js";
 import {router as userRoute} from "./routes/user.route.js";
 import { router as expenseRouter } from "./routes/expense.route.js";
 import { router as premiumRouter } from './routes/payment.route.js';
-import {router as forgotPasswordRouter} from './routes/password.route.js'
+import {router as forgotPasswordRouter} from './routes/password.route.js';
+import {router as reportRouter} from './routes/report.route.js';
 import cors from "cors";
 
 
@@ -26,6 +27,7 @@ app.use("/api/v1/user", userRoute);
 app.use("/api/v1/expense", expenseRouter);
 app.use("/api/v1/payment", premiumRouter);
 app.use("/api/v1/password", forgotPasswordRouter);
+app.use("/api/v1/report", reportRouter);
 
 await sequelize.sync();
 

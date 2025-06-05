@@ -11,11 +11,15 @@ const leaderbordBtn = document.getElementById("leaderbordBtn");
 const closeLeaderBtn = document.getElementById("closeLeaderBtn");
 const leaderbordContainer = document.getElementById("leaderbordContainer");
 const ul_leader = document.getElementById("ul_leader");
+const reportBtn = document.getElementById("reportBtn");
 let isPremium = false;
 let isLeaderboardVisible = false;
 
 
 
+reportBtn.addEventListener('click', () => {
+    window.location.href = "../report/report.html";
+})
 
 
 document.getElementById("buyPremiumBtn").addEventListener("click", async () => {
