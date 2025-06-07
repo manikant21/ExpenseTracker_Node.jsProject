@@ -6,7 +6,12 @@ const BASE_URL = "http://localhost:3000/api/v1/report";
 const filterType = document.getElementById("filterType");
 const retrunBtn = document.getElementById("returnBtn");
 const logout = document.getElementById("logout");
-const token = localStorage.getItem("token")
+const token = localStorage.getItem("token");
+const reportPerPageSelector = document.getElementById("reportPerPage");
+const reportTypePerPageSelector = document.getElementById("reportTypePerPage");
+const reportTypePerPageContainer = document.getElementById("reportTypePerPageContainer");
+const reportPerPageContainer = document.getElementById("reportPerPageContainer");
+let select = "";
 
 
 
@@ -48,6 +53,9 @@ const isPremiumCheck = async () => {
 filterType.addEventListener("change", () => {
     const selected = filterType.value;
     fetchReportType(selected);
+    select = filterType.value;
+    reportPerPageContainer.classList.add("hidden");
+    reportTypePerPageContainer.classList.remove("hidden");
 });
 
 
@@ -80,7 +88,7 @@ downloadPdfBtn.addEventListener("click", async () => {
 
 const fetchReportType = async (type, page = 1) => {
     try {
-        const response = await axios.get(`${BASE_URL}/${type}?page=${page}`, {
+        const response = await axios.get(`${BASE_URL}/${type}?page=${page}&limit=${reportTypePerPage}`, {
             headers: { "Authorization": token }
         });
         const data = response.data;
@@ -98,6 +106,17 @@ const fetchReportType = async (type, page = 1) => {
         tableContainer.innerHTML = `<p class="text-red-500">Failed to load data.</p>`;
     }
 };
+
+let reportTypePerPage = localStorage.getItem("reportTypePerPage") || 3;
+reportTypePerPage = parseInt(reportTypePerPage);
+reportTypePerPageSelector.value = reportTypePerPage;
+
+
+reportTypePerPageSelector.addEventListener("change", () => {
+    reportTypePerPage = parseInt(reportTypePerPageSelector.value);
+    localStorage.setItem("reportTypePerPage", reportTypePerPage);
+    fetchReportType(select, page = 1); 
+})
 
 
 function renderPaginationForCategory(data, page, type) {
@@ -137,7 +156,7 @@ function renderPaginationForCategory(data, page, type) {
 const fetchReport = async (page = 1) => {
     try {
 
-        const response = await axios.get(`${BASE_URL}/dailyreport?page=${page}`, {
+        const response = await axios.get(`${BASE_URL}/dailyreport?page=${page}&limit=${reportPerPage}`, {
             headers: { "Authorization": token }
         });
         const data = response.data;
@@ -163,6 +182,18 @@ const fetchReport = async (page = 1) => {
         alert("Something went wrong!");
     }
 };
+
+
+let reportPerPage = localStorage.getItem("reportPerPage") || 3;
+reportPerPage = parseInt(reportPerPage);
+reportPerPageSelector.value = reportPerPage;
+
+
+reportPerPageSelector.addEventListener("change", () => {
+    reportPerPage = parseInt(reportPerPageSelector.value);
+    localStorage.setItem("reportPerPage", reportPerPage);
+    fetchReport(page = 1); 
+})
 
 function renderPagination(data, page) {
     const paginationDiv = document.getElementById("paginationDiv");

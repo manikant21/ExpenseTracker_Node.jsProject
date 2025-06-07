@@ -8,6 +8,7 @@ import { sequelize } from "../config/db.config.js";
 export const getExpense = async (req, res) => {
     try {
         const EXPENSE_PER_PAGE = 5;
+        const limit = parseInt(req.query.limit) || 10;
         const page = parseInt(req.query.page) || 1;
         // const { userId } = req.params;
         const total = await Expense.count({
@@ -22,17 +23,17 @@ export const getExpense = async (req, res) => {
                 userId: req.user.id
             },
             include: [{ model: User }],
-            offset: (page - 1) * EXPENSE_PER_PAGE,
-            limit: EXPENSE_PER_PAGE
+            offset: (page - 1) * limit,
+            limit: limit
         })
         return res.status(200).json({
             expense: expense,
             currentPage: page,
-            hasNextPage: page * EXPENSE_PER_PAGE < total,
+            hasNextPage: page * limit < total,
             nextPage: page + 1,
             hasPreviousPage: page > 1,
             previousPage: page - 1,
-            lastPage: Math.ceil(total / EXPENSE_PER_PAGE)
+            lastPage: Math.ceil(total / limit)
 
         });
     } catch (error) {
@@ -218,7 +219,8 @@ export const getTotalExpenseByEachUser = async (req, res) => {
         //     order: [[Sequelize.fn('SUM', Sequelize.col('Expenses.amount')), 'DESC']]
         // });
         // -------------optimised way
-        const EXPENSE_PER_PAGE = 3;
+        // const EXPENSE_PER_PAGE = 3;
+        const limit = parseInt(req.query.limit) || 3;
         const page = parseInt(req.query.page) || 1;
 
         const total = await User.count({
@@ -227,18 +229,18 @@ export const getTotalExpenseByEachUser = async (req, res) => {
 
         const expense = await User.findAll({
             order: [['totalExpenses', 'DESC']],
-            offset: (page - 1) * EXPENSE_PER_PAGE,
-            limit: EXPENSE_PER_PAGE
+            offset: (page - 1) * limit,
+            limit: limit
         })
 
         return res.status(200).json({
             expense: expense,
             currentPage: page,
-            hasNextPage: page * EXPENSE_PER_PAGE < total,
+            hasNextPage: page * limit < total,
             nextPage: page + 1,
             hasPreviousPage: page > 1,
             previousPage: page - 1,
-            lastPage: Math.ceil(total / EXPENSE_PER_PAGE)
+            lastPage: Math.ceil(total / limit)
         });
     } catch (error) {
         console.log(error.message);

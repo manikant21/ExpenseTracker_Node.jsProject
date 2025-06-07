@@ -15,7 +15,14 @@ const reportBtn = document.getElementById("reportBtn");
 let isPremium = false;
 let isLeaderboardVisible = false;
 const paginationDiv = document.getElementById("pagination");
+const leaderPaginationContainer = document.getElementById("leaderPaginationContainer");
 let page =1;
+const paginationLeader = document.getElementById("paginationLeader");
+
+
+const itemsPerPageSelector = document.getElementById("itemsPerPage");
+const leaderPerPageSelector = document.getElementById("leaderPerPage");
+
 
 
 
@@ -64,7 +71,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             leaderbordBtn.addEventListener("click", async () => {
                 if (!isLeaderboardVisible) {
                     leaderbordContainer.classList.remove("hidden");
+                    leaderPaginationContainer.classList.remove("hidden");
                     closeLeaderBtn.classList.remove("hidden"); 
+                    paginationLeader.classList.remove("hidden")
                     await fetchLeaderData(page = 1);
                     isLeaderboardVisible = true;
                 }
@@ -73,7 +82,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             closeLeaderBtn.addEventListener("click", () => {
                 leaderbordContainer.classList.add("hidden");
+                 leaderPaginationContainer.classList.add("hidden");
                 closeLeaderBtn.classList.add("hidden");
+                paginationLeader.classList.add("hidden");
                 isLeaderboardVisible = false;
             });
         }
@@ -86,7 +97,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 const fetchLeaderData = async (page = 1) => {
     try {
-        const response = await axios.get(`${BASE_URL}/allexpensedetails?page=${page}`, {
+        const response = await axios.get(`${BASE_URL}/allexpensedetails?page=${page}&limit=${leaderPerPage}`, {
             headers: {
                 "Authorization": token
             }
@@ -106,6 +117,17 @@ const fetchLeaderData = async (page = 1) => {
         alert("Something went wrong. Please try again later.");
     }
 }
+
+let leaderPerPage = localStorage.getItem("leaderPerPage") || 3;
+leaderPerPage = parseInt(leaderPerPage);
+leaderPerPageSelector.value = leaderPerPage;
+
+
+leaderPerPageSelector.addEventListener("change", () => {
+    leaderPerPage = parseInt(leaderPerPageSelector.value);
+    localStorage.setItem("leaderPerPage", leaderPerPage);
+    fetchLeaderData(page = 1); 
+})
 
 function renderPaginationForLeaders(data, page) {
     const paginationDiv = document.getElementById("paginationLeader");
@@ -250,7 +272,7 @@ if (!token) {
 
     const fetchExpenseData = async (page = 1) => {
         try {
-            const response = await axios.get(`${BASE_URL}/?page=${page}`, {
+            const response = await axios.get(`${BASE_URL}/?page=${page}&limit=${itemsPerPage}`, {
                 headers: {
                     "Authorization": token
                 }
@@ -303,6 +325,16 @@ if (!token) {
     }
 }
 
+let itemsPerPage = localStorage.getItem("itemsPerPage") || 10;
+itemsPerPage = parseInt(itemsPerPage);
+itemsPerPageSelector.value = itemsPerPage;
+
+// Update localStorage when changed
+itemsPerPageSelector.addEventListener("change", () => {
+    itemsPerPage = parseInt(itemsPerPageSelector.value);
+    localStorage.setItem("itemsPerPage", itemsPerPage);
+    fetchExpenseData(page = 1); // Refresh from page 1 with new setting
+});
 
 
 

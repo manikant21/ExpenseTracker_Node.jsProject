@@ -6,7 +6,8 @@ import PDFDocument from "pdfkit";
 
 export const dailyReport = async (req, res) => {
   try {
-    const EXPENSE_PER_PAGE = 10;
+    // const EXPENSE_PER_PAGE = 10;
+    const limit = parseInt(req.query.limit) || 5;
     const page = parseInt(req.query.page) || 1;
     const total = await Expense.count({
       where: {
@@ -28,19 +29,19 @@ export const dailyReport = async (req, res) => {
         userId: req.user.id
       },
       include: [{ model: User }],
-      offset: (page - 1) * EXPENSE_PER_PAGE,
-      limit: EXPENSE_PER_PAGE
+      offset: (page - 1) * limit,
+      limit: limit
     })
 
     return res.status(200).json({
       expense: expense,
       totalAmount: totalAmount.toFixed(2),
       currentPage: page,
-      hasNextPage: page * EXPENSE_PER_PAGE < total,
+      hasNextPage: page * limit < total,
       nextPage: page + 1,
       hasPreviousPage: page > 1,
       previousPage: page - 1,
-      lastPage: Math.ceil(total / EXPENSE_PER_PAGE)
+      lastPage: Math.ceil(total / limit)
     });
 
   } catch (error) {
@@ -152,7 +153,8 @@ const getDateRange = (type) => {
 
 export const getFilteredReport = async (req, res) => {
   try {
-    const EXPENSE_PER_PAGE = 4;
+    // const EXPENSE_PER_PAGE = 4;
+    const limit = parseInt(req.query.limit) || 5;
     const page = parseInt(req.query.page) || 1;
     console.log(page);
     const userId = req.user.id;
@@ -189,19 +191,19 @@ export const getFilteredReport = async (req, res) => {
         },
       },
       include: [{ model: User }],
-      offset: (page - 1) * EXPENSE_PER_PAGE,
-      limit: EXPENSE_PER_PAGE
+      offset: (page - 1) * limit,
+      limit: limit
     });
 
     res.status(200).json({
       expense: expense,
       totalAmount: totalAmount.toFixed(2),
       currentPage: page,
-      hasNextPage: page * EXPENSE_PER_PAGE < total,
+      hasNextPage: page * limit < total,
       nextPage: page + 1,
       hasPreviousPage: page > 1,
       previousPage: page - 1,
-      lastPage: Math.ceil(total / EXPENSE_PER_PAGE)
+      lastPage: Math.ceil(total / limit)
     });
   } catch (error) {
     console.error(error);
