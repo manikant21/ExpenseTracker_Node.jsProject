@@ -7,14 +7,34 @@ import { sequelize } from "../config/db.config.js";
 
 export const getExpense = async (req, res) => {
     try {
+        const EXPENSE_PER_PAGE = 5;
+        const page = parseInt(req.query.page) || 1;
         // const { userId } = req.params;
-        const expense = await Expense.findAll({
+        const total = await Expense.count({
             where: {
                 userId: req.user.id
             },
             include: [{ model: User }]
         });
-        return res.status(200).json({ msg: expense });
+
+        const expense = await Expense.findAll({
+            where: {
+                userId: req.user.id
+            },
+            include: [{ model: User }],
+            offset: (page - 1) * EXPENSE_PER_PAGE,
+            limit: EXPENSE_PER_PAGE
+        })
+        return res.status(200).json({
+            expense: expense,
+            currentPage: page,
+            hasNextPage: page * EXPENSE_PER_PAGE < total,
+            nextPage: page + 1,
+            hasPreviousPage: page > 1,
+            previousPage: page - 1,
+            lastPage: Math.ceil(total / EXPENSE_PER_PAGE)
+
+        });
     } catch (error) {
         console.log(error.message);
         return res.status(500).json({ "msg": "Unable to fetch details from DB" });
@@ -92,7 +112,7 @@ export const deleteExpense = async (req, res) => {
         }
         const amount = Number(expense.amount)
         const totalExpenses = Number(req.user.totalExpenses) - Number(amount);
-       
+
         await Expense.destroy({ where: { id }, transaction });
         await User.update({
             totalExpenses: totalExpenses
@@ -129,7 +149,7 @@ export const editExpense = async (req, res) => {
         const updatedTotal = Number(req.user.totalExpenses) - prevAmount + newAmount;
 
         // Update the user's totalExpenses
-        
+
         const data = await Expense.update({
             amount: newAmount,
             description: description,
@@ -198,11 +218,28 @@ export const getTotalExpenseByEachUser = async (req, res) => {
         //     order: [[Sequelize.fn('SUM', Sequelize.col('Expenses.amount')), 'DESC']]
         // });
         // -------------optimised way
-        const result = await User.findAll({
+        const EXPENSE_PER_PAGE = 3;
+        const page = parseInt(req.query.page) || 1;
+
+        const total = await User.count({
             order: [['totalExpenses', 'DESC']]
         })
 
-        return res.status(200).json({ result });
+        const expense = await User.findAll({
+            order: [['totalExpenses', 'DESC']],
+            offset: (page - 1) * EXPENSE_PER_PAGE,
+            limit: EXPENSE_PER_PAGE
+        })
+
+        return res.status(200).json({
+            expense: expense,
+            currentPage: page,
+            hasNextPage: page * EXPENSE_PER_PAGE < total,
+            nextPage: page + 1,
+            hasPreviousPage: page > 1,
+            previousPage: page - 1,
+            lastPage: Math.ceil(total / EXPENSE_PER_PAGE)
+        });
     } catch (error) {
         console.log(error.message);
         return res.status(500).json({ msg: "Unable to expense data for each user from DB" });

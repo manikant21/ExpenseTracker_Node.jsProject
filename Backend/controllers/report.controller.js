@@ -1,23 +1,51 @@
 import { User } from "../models/user.model.js";
-import { Expense } from "../models/expense.model.js"; 
+import { Expense } from "../models/expense.model.js";
 import { Op } from "sequelize";
 import PDFDocument from "pdfkit";
 
 
 export const dailyReport = async (req, res) => {
-    try {
-        const result = await Expense.findAll({
-            where: {
-                userId: req.user.id
-            },
-            include: [{ model: User }]
-        })
-         const totalAmount = result.reduce((sum, expense) => sum + parseFloat(expense.amount), 0);
-        return res.status(200).json({msg: result, totalAmount: totalAmount.toFixed(2)});
-        
-    } catch (error) {
-        
-    }
+  try {
+    const EXPENSE_PER_PAGE = 10;
+    const page = parseInt(req.query.page) || 1;
+    const total = await Expense.count({
+      where: {
+        userId: req.user.id
+      },
+      include: [{ model: User }]
+    })
+
+    const result = await Expense.findAll({
+      where: {
+        userId: req.user.id
+      },
+      include: [{ model: User }]
+    })
+
+    const totalAmount = result.reduce((sum, expense) => sum + parseFloat(expense.amount), 0);
+    const expense = await Expense.findAll({
+      where: {
+        userId: req.user.id
+      },
+      include: [{ model: User }],
+      offset: (page - 1) * EXPENSE_PER_PAGE,
+      limit: EXPENSE_PER_PAGE
+    })
+
+    return res.status(200).json({
+      expense: expense,
+      totalAmount: totalAmount.toFixed(2),
+      currentPage: page,
+      hasNextPage: page * EXPENSE_PER_PAGE < total,
+      nextPage: page + 1,
+      hasPreviousPage: page > 1,
+      previousPage: page - 1,
+      lastPage: Math.ceil(total / EXPENSE_PER_PAGE)
+    });
+
+  } catch (error) {
+
+  }
 }
 
 
@@ -48,7 +76,7 @@ export const downloadPDFReport = async (req, res) => {
     if (!expenses.length) {
       doc.moveDown(2);
       doc.fontSize(12).text("No expense data available for this period.", { align: "center" });
-      doc.end(); 
+      doc.end();
       return;
     }
 
@@ -124,8 +152,12 @@ const getDateRange = (type) => {
 
 export const getFilteredReport = async (req, res) => {
   try {
-    const userId = req.user.id; 
+    const EXPENSE_PER_PAGE = 4;
+    const page = parseInt(req.query.page) || 1;
+    console.log(page);
+    const userId = req.user.id;
     const { type } = req.params;
+    console.log(type);
     const startDate = getDateRange(type);
 
     const result = await Expense.findAll({
@@ -138,10 +170,38 @@ export const getFilteredReport = async (req, res) => {
       include: [{ model: User }],
     });
 
-     const totalAmount = result.reduce((sum, expense) => sum + parseFloat(expense.amount), 0);
+    const totalAmount = result.reduce((sum, expense) => sum + parseFloat(expense.amount), 0);
+    const total = await Expense.count({
+      where: {
+        userId,
+        createdAt: {
+          [Op.gte]: startDate,
+        },
+      },
+      include: [{ model: User }],
+    });
 
-    res.status(200).json({ msg: result ,
-        totalAmount: totalAmount.toFixed(2)
+    const expense = await Expense.findAll({
+      where: {
+        userId,
+        createdAt: {
+          [Op.gte]: startDate,
+        },
+      },
+      include: [{ model: User }],
+      offset: (page - 1) * EXPENSE_PER_PAGE,
+      limit: EXPENSE_PER_PAGE
+    });
+
+    res.status(200).json({
+      expense: expense,
+      totalAmount: totalAmount.toFixed(2),
+      currentPage: page,
+      hasNextPage: page * EXPENSE_PER_PAGE < total,
+      nextPage: page + 1,
+      hasPreviousPage: page > 1,
+      previousPage: page - 1,
+      lastPage: Math.ceil(total / EXPENSE_PER_PAGE)
     });
   } catch (error) {
     console.error(error);

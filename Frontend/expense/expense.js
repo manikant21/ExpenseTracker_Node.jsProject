@@ -14,6 +14,8 @@ const ul_leader = document.getElementById("ul_leader");
 const reportBtn = document.getElementById("reportBtn");
 let isPremium = false;
 let isLeaderboardVisible = false;
+const paginationDiv = document.getElementById("pagination");
+let page =1;
 
 
 
@@ -63,7 +65,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 if (!isLeaderboardVisible) {
                     leaderbordContainer.classList.remove("hidden");
                     closeLeaderBtn.classList.remove("hidden"); 
-                    await fetchLeaderData();
+                    await fetchLeaderData(page = 1);
                     isLeaderboardVisible = true;
                 }
             });
@@ -82,25 +84,59 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
 
-const fetchLeaderData = async () => {
+const fetchLeaderData = async (page = 1) => {
     try {
-        const response = await axios.get(`${BASE_URL}/allexpensedetails`, {
+        const response = await axios.get(`${BASE_URL}/allexpensedetails?page=${page}`, {
             headers: {
                 "Authorization": token
             }
         })
-        console.log(response.data.result);
+        console.log(response.data);
+        const data = response.data;
         let ul_leader = document.getElementById("ul_leader");
         ul_leader.innerHTML = "";
-        for (let i = 0; i < response.data.result.length; i++) {
+        for (let i = 0; i < response.data.expense.length; i++) {
             // console.log(response.data.result[i]);
-            showLeaderboardData(response.data.result[i]);
+            showLeaderboardData(response.data.expense[i]);
         }
+
+        renderPaginationForLeaders(data, page);
     } catch (error) {
         console.error("Error occures in fetching leaderboard details:", error);
         alert("Something went wrong. Please try again later.");
     }
 }
+
+function renderPaginationForLeaders(data, page) {
+    const paginationDiv = document.getElementById("paginationLeader");
+    paginationDiv.innerHTML = ""; 
+
+    const createBtn = (label, page) => {
+        const btn = document.createElement("button");
+        btn.textContent = label;
+        btn.className = "mx-1 px-3 py-1 bg-blue-500 text-white rounded";
+        btn.addEventListener("click", () => fetchLeaderData(page));
+        return btn;
+    };
+
+    if (data.hasPreviousPage) {
+        paginationDiv.appendChild(createBtn(page - 1, data.previousPage));
+    }
+
+    const current = document.createElement("span");
+    current.textContent = ` Page ${data.currentPage} of ${data.lastPage} `;
+    current.className = "mx-2 text-lg font-semibold text-gray-700";
+    paginationDiv.appendChild(current);
+
+    if (data.hasNextPage) {
+        paginationDiv.appendChild(createBtn(page + 1, data.nextPage));
+    }
+
+    if (data.currentPage !== data.lastPage) {
+        paginationDiv.appendChild(createBtn("Last", data.lastPage));
+    }
+}
+
 
 const showLeaderboardData = (data) => {
     console.log(data.name, data.totalExpenses);
@@ -212,19 +248,22 @@ if (!token) {
 
     }
 
-    const fetchExpenseData = async () => {
+    const fetchExpenseData = async (page = 1) => {
         try {
-            const data = await axios.get(`${BASE_URL}/`, {
+            const response = await axios.get(`${BASE_URL}/?page=${page}`, {
                 headers: {
                     "Authorization": token
                 }
             });
-            console.log(data.data.msg.length);
+             const data = response.data;
+            console.log(data);
             let ul = document.getElementById("ul");
             ul.innerHTML = "";
-            for (let i = 0; i < data.data.msg.length; i++) {
-                showData(data.data.msg[i]);
+            for (let i = 0; i < data.expense.length; i++) {
+                 showData(data.expense[i]);
             }
+
+            renderPagination(data, page);
 
         }
         catch (error) {
@@ -234,6 +273,40 @@ if (!token) {
     }
 
 
-    window.addEventListener("DOMContentLoaded", fetchExpenseData())
+    function renderPagination(data, page) {
+    const paginationDiv = document.getElementById("pagination");
+    paginationDiv.innerHTML = ""; 
+
+    const createBtn = (label, page) => {
+        const btn = document.createElement("button");
+        btn.textContent = label;
+        btn.className = "mx-1 px-3 py-1 bg-blue-500 text-white rounded";
+        btn.addEventListener("click", () => fetchExpenseData(page));
+        return btn;
+    };
+
+    if (data.hasPreviousPage) {
+        paginationDiv.appendChild(createBtn(page - 1, data.previousPage));
+    }
+
+    const current = document.createElement("span");
+    current.textContent = ` Page ${data.currentPage} of ${data.lastPage} `;
+    current.className = "mx-2 text-lg font-semibold text-gray-700";
+    paginationDiv.appendChild(current);
+
+    if (data.hasNextPage) {
+        paginationDiv.appendChild(createBtn(page + 1, data.nextPage));
+    }
+
+    if (data.currentPage !== data.lastPage) {
+        paginationDiv.appendChild(createBtn("Last", data.lastPage));
+    }
+}
+
+
+
+
+
+    window.addEventListener("DOMContentLoaded", () => fetchExpenseData())
 
 }

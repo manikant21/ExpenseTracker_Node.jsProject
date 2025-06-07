@@ -78,18 +78,20 @@ downloadPdfBtn.addEventListener("click", async () => {
 });
 
 
-const fetchReportType = async (type) => {
+const fetchReportType = async (type, page = 1) => {
     try {
-        const response = await axios.get(`${BASE_URL}/${type}`, {
+        const response = await axios.get(`${BASE_URL}/${type}?page=${page}`, {
             headers: { "Authorization": token }
         });
-        const data = response.data.msg;
+        const data = response.data;
+        console.log(data);
         const totalAmount = response.data.totalAmount;
         const heading = document.createElement("h1");
         heading.innerHTML = `${type.charAt(0).toUpperCase() + type.slice(1)} Report`;
         heading.className = "text-xl font-bold text-white mb-4";
         tableContainer.appendChild(heading);
-        showData(data);
+        showData(data.expense);
+        renderPaginationForCategory(data, page, type);
         showTotalExpense(totalAmount);
     } catch (error) {
         console.error(error);
@@ -97,24 +99,63 @@ const fetchReportType = async (type) => {
     }
 };
 
-const fetchReport = async () => {
+
+function renderPaginationForCategory(data, page, type) {
+    const paginationDiv = document.getElementById("paginationDiv");
+    paginationDiv.innerHTML = ""; 
+
+    const createBtn = (label, page) => {
+        const btn = document.createElement("button");
+        btn.textContent = label;
+        btn.className = "mx-1 px-3 py-1 bg-blue-500 text-white rounded";
+        btn.addEventListener("click", () => fetchReportType(type,page));
+        return btn;
+    };
+
+   
+    if (data.hasPreviousPage) {
+        paginationDiv.appendChild(createBtn(page - 1, data.previousPage));
+    }
+
+   
+    const current = document.createElement("span");
+    current.textContent = ` Page ${data.currentPage} of ${data.lastPage} `;
+    current.className = "mx-2 text-lg font-semibold text-orange-300";
+    paginationDiv.appendChild(current);
+
+
+    if (data.hasNextPage) {
+        paginationDiv.appendChild(createBtn(page + 1, data.nextPage));
+    }
+
+    
+    if (data.currentPage !== data.lastPage) {
+        paginationDiv.appendChild(createBtn("Last", data.lastPage));
+    }
+}
+
+const fetchReport = async (page = 1) => {
     try {
-        const response = await axios.get(`${BASE_URL}/dailyreport`, {
+
+        const response = await axios.get(`${BASE_URL}/dailyreport?page=${page}`, {
             headers: { "Authorization": token }
         });
-        const data = response.data.msg;
+        const data = response.data;
+        // console.log(data.expense);
         const totalAmount = response.data.totalAmount;
         const heading = document.createElement("h1");
         heading.innerHTML = "Total Report";
         heading.className = "text-xl font-bold text-red-400 mb-4";
         tableContainer.appendChild(heading);
-        if (!Array.isArray(data) || data.length === 0) {
+        if (!Array.isArray(data.expense) || data.expense.length === 0) {
             tableContainer.innerHTML = '<p class="text-gray-500">No data available.</p>';
             return;
         }
 
-        showData(data);
+        showData(data.expense);
+        renderPagination(data, page);
         showTotalExpense(totalAmount);
+
 
 
     } catch (error) {
@@ -122,6 +163,40 @@ const fetchReport = async () => {
         alert("Something went wrong!");
     }
 };
+
+function renderPagination(data, page) {
+    const paginationDiv = document.getElementById("paginationDiv");
+    paginationDiv.innerHTML = ""; 
+
+    const createBtn = (label, page) => {
+        const btn = document.createElement("button");
+        btn.textContent = label;
+        btn.className = "mx-1 px-3 py-1 bg-blue-500 text-white rounded";
+        btn.addEventListener("click", () => fetchReport(page));
+        return btn;
+    };
+
+    
+    if (data.hasPreviousPage) {
+        paginationDiv.appendChild(createBtn(page - 1, data.previousPage));
+    }
+
+
+    const current = document.createElement("span");
+    current.textContent = ` Page ${data.currentPage} of ${data.lastPage} `;
+    current.className = "mx-2 text-lg font-semibold text-orange-300";
+    paginationDiv.appendChild(current);
+
+    
+    if (data.hasNextPage) {
+        paginationDiv.appendChild(createBtn(page + 1, data.nextPage));
+    }
+
+   
+    if (data.currentPage !== data.lastPage) {
+        paginationDiv.appendChild(createBtn("Last", data.lastPage));
+    }
+}
 
 const showTotalExpense = (amount) => {
     const container = document.getElementById("tableContainer");
@@ -135,6 +210,7 @@ const showTotalExpense = (amount) => {
 
 
 const showData = (data) => {
+    // console.log(data);
     tableContainer.innerHTML = "";
 
     if (!data.length) {
@@ -184,6 +260,6 @@ const showData = (data) => {
     });
 
     table.appendChild(tbody);
-    //   tableContainer.innerHTML = ""; // clear previous content
+    //   tableContainer.innerHTML = ""; 
     tableContainer.appendChild(table);
 };
