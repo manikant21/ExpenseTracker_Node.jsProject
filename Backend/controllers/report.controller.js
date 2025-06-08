@@ -48,7 +48,7 @@ export const dailyReport = async (req, res) => {
 
   }
 }
-
+// 
 
 export const downloadPDFReport = async (req, res) => {
   try {
@@ -64,67 +64,89 @@ export const downloadPDFReport = async (req, res) => {
       include: [{ model: User }]
     });
 
-    const doc = new PDFDocument();
+    const doc = new PDFDocument({ margin: 50 });
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", `attachment; filename=${type}-report.pdf`);
     doc.pipe(res);
 
+    // Header
     doc.fontSize(20).text(`${type.toUpperCase()} EXPENSE REPORT`, { align: "center" });
     doc.moveDown();
     doc.fontSize(14).text(`Generated On: ${new Date().toLocaleDateString()}`);
     doc.moveDown();
 
     if (!expenses.length) {
-      doc.moveDown(2);
       doc.fontSize(12).text("No expense data available for this period.", { align: "center" });
       doc.end();
       return;
     }
 
+    // Total Amount
     const totalAmount = expenses.reduce((sum, exp) => sum + parseFloat(exp.amount), 0);
-    doc.text(`Total Expenses: Rs. ${totalAmount.toFixed(2)}`);
-    doc.moveDown();
+    doc.fontSize(14).text(`Total Expenses: Rs. ${totalAmount.toFixed(2)}`, { align: "left" });
+    doc.moveDown(2);
 
-    const headers = ["Date", "Category", "Description", "Amount"];
-    const colX = [50, 150, 250, 400];
-    const colWidth = [100, 100, 140, 100];
+    // Table Setup
+    const headers = ["Date", "Note", "Category", "Description", "Amount"];
+    const columnPositions = [50, 120, 220, 300, 450];
+    const columnWidths = [70, 100, 80, 150, 70];
+    const rowHeight = 20; // Fixed row height
 
-    const startY = doc.y;
-    const headerHeights = headers.map((title, i) =>
-      doc.heightOfString(title, { width: colWidth[i] })
-    );
-    const maxHeaderHeight = Math.max(...headerHeights);
-
-    headers.forEach((title, i) => {
-      doc.text(title, colX[i], startY, { width: colWidth[i], align: "left" });
+    // Draw Headers with consistent height
+    const headerY = doc.y;
+    doc.font('Helvetica-Bold').fontSize(12);
+    
+    headers.forEach((header, i) => {
+      doc.text(header, columnPositions[i], headerY, {
+        width: columnWidths[i],
+        align: i === 4 ? 'right' : 'left'
+      });
     });
 
-    doc.y = startY + maxHeaderHeight + 5;
+    // Draw horizontal line
+    doc.moveTo(50, headerY + rowHeight).lineTo(520, headerY + rowHeight).stroke();
+    doc.moveDown(0.5);
 
-    expenses.forEach(exp => {
+    // Draw Rows with perfect alignment
+    doc.font('Helvetica').fontSize(10);
+    expenses.forEach((exp, rowIndex) => {
+      const rowY = headerY + rowHeight + 5 + (rowIndex * rowHeight);
+      
       const date = new Date(exp.createdAt).toISOString().split("T")[0];
+      const note = exp.note || "N/A";
       const category = exp.category || "N/A";
       let description = exp.description || "N/A";
-      if (description.length > 60) {
-        description = description.substring(0, 57) + "...";
-      }
-      const amount = `Rs. ${exp.amount}`;
+      const amount = `Rs. ${parseFloat(exp.amount).toFixed(2)}`;
 
-      const startY = doc.y;
+      // Process text to fit columns
+      const processText = (text, maxWidth) => {
+        if (doc.widthOfString(text) > maxWidth) {
+          return text.substring(0, Math.floor(maxWidth / 7)) + "..."; // Approximate chars per width
+        }
+        return text;
+      };
 
-      const dateHeight = doc.heightOfString(date, { width: 100 });
-      const catHeight = doc.heightOfString(category, { width: 100 });
-      const descHeight = doc.heightOfString(description, { width: 140 });
-      const amtHeight = doc.heightOfString(amount, { width: 100 });
-
-      const rowHeight = Math.max(dateHeight, catHeight, descHeight, amtHeight);
-
-      doc.text(date, 50, startY, { width: 100 });
-      doc.text(category, 150, startY, { width: 100 });
-      doc.text(description, 250, startY, { width: 140 });
-      doc.text(amount, 400, startY, { width: 100 });
-
-      doc.y = startY + rowHeight + 5;
+      // Draw each cell at the exact same Y position
+      doc.text(processText(date, columnWidths[0]), columnPositions[0], rowY, {
+        width: columnWidths[0]
+      });
+      
+      doc.text(processText(note, columnWidths[1]), columnPositions[1], rowY, {
+        width: columnWidths[1]
+      });
+      
+      doc.text(category, columnPositions[2], rowY, {
+        width: columnWidths[2]
+      });
+      
+      doc.text(processText(description, columnWidths[3]), columnPositions[3], rowY, {
+        width: columnWidths[3]
+      });
+      
+      doc.text(amount, columnPositions[4], rowY, {
+        width: columnWidths[4],
+        align: 'right'
+      });
     });
 
     doc.end();

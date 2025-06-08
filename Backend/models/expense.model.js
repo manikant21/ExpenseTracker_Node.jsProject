@@ -7,6 +7,11 @@ export const Expense = sequelize.define('Expense', {
         type: DataTypes.INTEGER,
         allowNull: false
     },
+
+    note: {  
+        type: DataTypes.STRING,
+    },
+
     description: {
         type: DataTypes.STRING,
         allowNull: false

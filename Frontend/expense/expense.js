@@ -182,10 +182,12 @@ if (!token) {
     form.addEventListener("submit", async (event) => {
         event.preventDefault();
         const amount = event.target.amount.value;
+        const note = event.target.note.value;
         const description = event.target.description.value;
         const category = event.target.category.value;
         const expenseObj = {
             amount: amount,
+            note: note,
             description: description,
             category: category
         }
@@ -221,6 +223,7 @@ if (!token) {
             console.log("Error occred in inserting expense");
         }
         document.getElementById("amount").value = "";
+        document.getElementById("note").value = "";
         document.getElementById("description").value = "";
         document.getElementById("category").value = "movie";
 
@@ -231,7 +234,7 @@ if (!token) {
         let ul = document.getElementById("ul");
 
         let list = document.createElement("li");
-        list.textContent = `${data.amount}-${data.description}-${data.category}`;
+        list.textContent = `${data.amount}-${data.note}-${data.description}-${data.category}`;
         let delebtn = document.createElement("button");
         delebtn.classList = "border m-1 p-1 cursor-pointer"
         delebtn.textContent = "Delete";
@@ -256,6 +259,7 @@ if (!token) {
         editBtn.addEventListener("click", () => {
 
             document.getElementById("amount").value = data.amount;
+            document.getElementById("note").value = data.note;
             document.getElementById("description").value = data.description;
             document.getElementById("category").value = data.category;
             editingId = data.id;

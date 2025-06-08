@@ -45,8 +45,8 @@ export const getExpense = async (req, res) => {
 export const insertExpense = async (req, res) => {
     const transaction = await sequelize.transaction();
     try {
-        const { amount, description, category } = req.body;
-        if (!amount || !description || !category) {
+        const { amount, note, description, category } = req.body;
+        if (!amount || !description || !category || !note) {
             await transaction.rollback();
             return res.status(400).json({ msg: "Please fill all the fileds" })
         }
@@ -58,6 +58,7 @@ export const insertExpense = async (req, res) => {
 
         const expense = await Expense.create({
             amount: amount,
+            note: note,
             description: description,
             category: category,
             userId: req.user.id
@@ -136,7 +137,7 @@ export const editExpense = async (req, res) => {
     const transaction = await sequelize.transaction();
     try {
         const { id } = req.params;
-        const { amount, description, category } = req.body;
+        const { amount, note, description, category } = req.body;
         const expense = await Expense.findOne({
             where: { id, userId: req.user.id }
         });
@@ -153,6 +154,7 @@ export const editExpense = async (req, res) => {
 
         const data = await Expense.update({
             amount: newAmount,
+            note: note,
             description: description,
             category: category
         }, {

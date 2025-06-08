@@ -62,7 +62,7 @@ filterType.addEventListener("change", () => {
 
 
 downloadPdfBtn.addEventListener("click", async () => {
-    const type = filterType.value;
+    const type = filterType.value|| "daily";
 
     try {
         const response = await axios.get(`http://localhost:3000/api/v1/report/download/pdf/${type}`, {
@@ -249,7 +249,7 @@ const showData = (data) => {
         return;
     }
 
-    const headers = ["Date", "Category", "Description", "Amount"];
+    const headers = ["Date","Note", "Category", "Description", "Amount"];
 
     
     const table = document.createElement("table");
@@ -276,11 +276,12 @@ const showData = (data) => {
         const tr = document.createElement("tr");
 
         const createdAt = new Date(row.createdAt).toLocaleDateString(); 
+        const note = row.note || "N/A"
         const category = row.category || "N/A";
         const description = row.description || "N/A";
         const amount = row.amount || 0;
 
-        [createdAt, category, description, amount].forEach(value => {
+        [createdAt, note, category, description, amount].forEach(value => {
             const td = document.createElement("td");
             td.className = "py-2 px-4 border-b text-black";
             td.textContent = value;
