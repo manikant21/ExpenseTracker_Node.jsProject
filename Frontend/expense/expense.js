@@ -338,7 +338,6 @@ itemsPerPageSelector.addEventListener("change", () => {
 
 
 
-
     window.addEventListener("DOMContentLoaded", () => fetchExpenseData())
 
 }
