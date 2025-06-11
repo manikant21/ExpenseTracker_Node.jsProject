@@ -1,4 +1,4 @@
-const BASE_URL_USER = "http://localhost:3000/api/v1/user";
+const BASE_URL_USER = "http://expensetrackernodejsproject-production.up.railway.app/api/v1/user";
 const form = document.getElementById("register_form");
 
 const login_form = document.getElementById("login_form");
