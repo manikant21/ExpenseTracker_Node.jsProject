@@ -67,7 +67,7 @@ export const handlePaymentStatus = async (req, res) => {
           <script>
             window.onload = function () {
               alert("${alertMessage}");
-              window.location.href = "http://127.0.0.1:5500/Frontend/expense/expense.html"; 
+              window.location.href = "${process.env.FRONTEND_URL}/expense/expense.html";
             };
           </script>
         </head>
