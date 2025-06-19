@@ -2,7 +2,7 @@
 
 const downloadPdfBtn = document.getElementById("downloadPdfBtn");
 const tableContainer = document.getElementById("tableContainer");
-const BASE_URL = "https://expensetrackernodejsproject-production.up.railway.app/api/v1/report";
+const BASE_URL = "https://expensetrackernodejsprojectproduction.up.railway.app/api/v1/report";
 const filterType = document.getElementById("filterType");
 const retrunBtn = document.getElementById("returnBtn");
 const logout = document.getElementById("logout");
@@ -34,7 +34,7 @@ logout.addEventListener('click', () => {
 
 const isPremiumCheck = async () => {
     try {
-        const response = await axios.get("https://expensetrackernodejsproject-production.up.railway.app/api/v1/user/status", {
+        const response = await axios.get("https://expensetrackernodejsprojectproduction.up.railway.app/api/v1/user/status", {
             headers: { "Authorization": token }
         });
 
@@ -65,7 +65,7 @@ downloadPdfBtn.addEventListener("click", async () => {
     const type = filterType.value|| "daily";
 
     try {
-        const response = await axios.get(`https://expensetrackernodejsproject-production.up.railway.app/api/v1/report/download/pdf/${type}`, {
+        const response = await axios.get(`https://expensetrackernodejsprojectproduction.up.railway.app/api/v1/report/download/pdf/${type}`, {
             responseType: "blob",
             headers: { "Authorization": token }
         });
