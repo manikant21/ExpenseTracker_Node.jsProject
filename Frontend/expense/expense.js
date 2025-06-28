@@ -1,4 +1,4 @@
-const BASE_URL = "https://expensetrackernodejsprojectproduction.up.railway.app/api/v1/expense";
+const BASE_URL = "http://expensetracker-env.eba-ex3dcvcn.ap-south-1.elasticbeanstalk.com/api/v1/expense";
 let editingId = null;
 const token = localStorage.getItem("token")
 // const userId = localStorage.getItem("userId");
@@ -33,7 +33,7 @@ reportBtn.addEventListener('click', () => {
 
 document.getElementById("buyPremiumBtn").addEventListener("click", async () => {
     try {
-        const response = await axios.post("https://expensetrackernodejsprojectproduction.up.railway.app/api/v1/payment/create-order", {}, {
+        const response = await axios.post("http://expensetracker-env.eba-ex3dcvcn.ap-south-1.elasticbeanstalk.com/api/v1/payment/create-order", {}, {
             headers: {
                 "Authorization": token
             }
@@ -58,7 +58,7 @@ document.getElementById("buyPremiumBtn").addEventListener("click", async () => {
 
 document.addEventListener("DOMContentLoaded", async () => {
     try {
-        const response = await axios.get("https://expensetrackernodejsprojectproduction.up.railway.app/api/v1/user/status", {
+        const response = await axios.get("http://expensetracker-env.eba-ex3dcvcn.ap-south-1.elasticbeanstalk.com/api/v1/user/status", {
             headers: { "Authorization": token }
         });
 

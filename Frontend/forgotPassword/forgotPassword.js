@@ -11,7 +11,7 @@ form.addEventListener('submit', async (event) => {
         email: email.value
     }
     try {
-        const response = await axios.post("https://expensetrackernodejsprojectproduction.up.railway.app/api/v1/password/forgotpassword", data);
+        const response = await axios.post("http://expensetracker-env.eba-ex3dcvcn.ap-south-1.elasticbeanstalk.com/api/v1/password/forgotpassword", data);
     } catch (error) {
         console.log(error);
     }

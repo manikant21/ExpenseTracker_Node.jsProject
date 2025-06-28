@@ -1,4 +1,4 @@
-const BASE_URL_USER = "https://expensetrackernodejsprojectproduction.up.railway.app/api/v1/user";
+const BASE_URL_USER = "http://expensetracker-env.eba-ex3dcvcn.ap-south-1.elasticbeanstalk.com/api/v1/user";
 const form = document.getElementById("register_form");
 const name = document.getElementById("name");
 const email = document.getElementById("email");
