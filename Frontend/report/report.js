@@ -3,6 +3,7 @@
 const downloadPdfBtn = document.getElementById("downloadPdfBtn");
 const tableContainer = document.getElementById("tableContainer");
 const BASE_URL = "http://expensetracker-env.eba-ex3dcvcn.ap-south-1.elasticbeanstalk.com/api/v1/report";
+const proxyUrl = "https://cors-anywhere.herokuapp.com/";
 const filterType = document.getElementById("filterType");
 const retrunBtn = document.getElementById("returnBtn");
 const logout = document.getElementById("logout");
@@ -34,7 +35,7 @@ logout.addEventListener('click', () => {
 
 const isPremiumCheck = async () => {
     try {
-        const response = await axios.get("http://expensetracker-env.eba-ex3dcvcn.ap-south-1.elasticbeanstalk.com/api/v1/user/status", {
+        const response = await axios.get(`${proxyUrl}http://expensetracker-env.eba-ex3dcvcn.ap-south-1.elasticbeanstalk.com/api/v1/user/status`, {
             headers: { "Authorization": token }
         });
 
@@ -65,7 +66,7 @@ downloadPdfBtn.addEventListener("click", async () => {
     const type = filterType.value|| "daily";
 
     try {
-        const response = await axios.get(`http://expensetracker-env.eba-ex3dcvcn.ap-south-1.elasticbeanstalk.com/api/v1/report/download/pdf/${type}`, {
+        const response = await axios.get(`${proxyUrl}http://expensetracker-env.eba-ex3dcvcn.ap-south-1.elasticbeanstalk.com/api/v1/report/download/pdf/${type}`, {
             responseType: "blob",
             headers: { "Authorization": token }
         });
@@ -88,7 +89,7 @@ downloadPdfBtn.addEventListener("click", async () => {
 
 const fetchReportType = async (type, page = 1) => {
     try {
-        const response = await axios.get(`${BASE_URL}/${type}?page=${page}&limit=${reportTypePerPage}`, {
+        const response = await axios.get(`${proxyUrl}${BASE_URL}/${type}?page=${page}&limit=${reportTypePerPage}`, {
             headers: { "Authorization": token }
         });
         const data = response.data;
@@ -156,7 +157,7 @@ function renderPaginationForCategory(data, page, type) {
 const fetchReport = async (page = 1) => {
     try {
 
-        const response = await axios.get(`${BASE_URL}/dailyreport?page=${page}&limit=${reportPerPage}`, {
+        const response = await axios.get(`${proxyUrl}${BASE_URL}/dailyreport?page=${page}&limit=${reportPerPage}`, {
             headers: { "Authorization": token }
         });
         const data = response.data;
