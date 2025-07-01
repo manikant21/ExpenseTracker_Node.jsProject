@@ -1,6 +1,10 @@
 import { createOrder, getOrderStatus } from "../services/cashfreeServices.js";
+import jwt from "jsonwebtoken";
 import { Order } from "../models/order.model.js";
 import { User } from "../models/user.model.js";
+import dotenv from 'dotenv'
+
+dotenv.config();
 
 export const createCashfreeOrder = async (req, res) => {
   try {
@@ -35,6 +39,7 @@ export const handlePaymentStatus = async (req, res) => {
   try {
     const orderId = req.params.orderId;
     const status = await getOrderStatus(orderId);
+    let token ="";
 
     const order = await Order.findOne({ where: { orderId } });
     if (order) {
@@ -45,6 +50,10 @@ export const handlePaymentStatus = async (req, res) => {
         if (user) {
           user.isPremium = true;
           await user.save();
+          token = jwt.sign(
+        { userId: user.id, name: user.name },
+        process.env.JWT_SECRET
+      );
         }
       }
     }
@@ -67,7 +76,7 @@ export const handlePaymentStatus = async (req, res) => {
           <script>
             window.onload = function () {
               alert("${alertMessage}");
-              window.location.href = "${process.env.FRONTEND_URL}/expense/expense.html";
+              window.location.href = "${process.env.FRONTEND_URL}/expense/expense.html?token=${token}";
             };
           </script>
         </head>

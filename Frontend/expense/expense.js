@@ -25,6 +25,14 @@ const itemsPerPageSelector = document.getElementById("itemsPerPage");
 const leaderPerPageSelector = document.getElementById("leaderPerPage");
 
 
+const urlParams = new URLSearchParams(window.location.search);
+const tokenFromURL = urlParams.get("token");
+if (tokenFromURL) {
+    localStorage.setItem("token", tokenFromURL);
+}
+
+
+
 
 
 reportBtn.addEventListener('click', () => {
