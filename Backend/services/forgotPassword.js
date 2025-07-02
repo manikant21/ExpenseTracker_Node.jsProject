@@ -40,42 +40,81 @@
 // });
 
 
-import nodemailer from "nodemailer";
 
+import nodemailer from "nodemailer";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const transporter = nodemailer.createTransport({
-  host: "smtp.ethereal.email",
-  port: 587,
+  host: process.env.SMTP_HOST,
+  port: parseInt(process.env.SMTP_PORT),
   secure: false, 
   auth: {
-    user: "martina.parker@ethereal.email",
-    pass: "tqbcjc6kHFYk6whAjX",
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
   },
 });
-
 
 export const sendResetPasswordEmail = async (toEmail, resetLink) => {
   try {
     const mailOptions = {
-      from: `"Expense Tracker App" <martina.parker@ethereal.email>`,
+      from: `"Expense Tracker" <${process.env.SMTP_USER}>`,
       to: toEmail,
-      subject: "Reset Your Expense Tracker Password",
+      subject: "Reset Your Password",
       text: `Click the following link to reset your password: ${resetLink}`,
-      html: `
-        <p>Hello,</p>
-        <p>You requested to reset your password. Click the link below to proceed:</p>
-        <p><a href="${resetLink}">${resetLink}</a></p>
-      `,
+      html: `<p>Click <a href="${resetLink}">here</a> to reset your password.</p>`,
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log("Password reset email sent:", info.messageId);
+    console.log("Email sent:", info.messageId);
     return info;
-  } catch (error) {
-    console.error("Failed to send reset password email:", error);
-    throw error;
+  } catch (err) {
+    console.error("Email sending failed:", err);
+    throw err;
   }
 };
+
+
+
+
+
+// import nodemailer from "nodemailer";
+
+
+// const transporter = nodemailer.createTransport({
+//   host: "smtp.ethereal.email",
+//   port: 587,
+//   secure: false, 
+//   auth: {
+//     user: "martina.parker@ethereal.email",
+//     pass: "tqbcjc6kHFYk6whAjX",
+//   },
+// });
+
+
+// export const sendResetPasswordEmail = async (toEmail, resetLink) => {
+//   try {
+//     const mailOptions = {
+//       from: `"Expense Tracker App" <martina.parker@ethereal.email>`,
+//       to: toEmail,
+//       subject: "Reset Your Expense Tracker Password",
+//       text: `Click the following link to reset your password: ${resetLink}`,
+//       html: `
+//         <p>Hello,</p>
+//         <p>You requested to reset your password. Click the link below to proceed:</p>
+//         <p><a href="${resetLink}">${resetLink}</a></p>
+//       `,
+//     };
+
+//     const info = await transporter.sendMail(mailOptions);
+//     console.log("Password reset email sent:", info.messageId);
+//     return info;
+//   } catch (error) {
+//     console.error("Failed to send reset password email:", error);
+//     throw error;
+//   }
+// };
 
 
 // (async () => {
