@@ -48,8 +48,8 @@ const transporter = nodemailer.createTransport({
   port: 587,
   secure: false, 
   auth: {
-    user: "maddison53@ethereal.email",
-    pass: "jn7jnAPss4f63QBp6D",
+    user: "martina.parker@ethereal.email",
+    pass: "tqbcjc6kHFYk6whAjX",
   },
 });
 
@@ -57,7 +57,7 @@ const transporter = nodemailer.createTransport({
 export const sendResetPasswordEmail = async (toEmail, resetLink) => {
   try {
     const mailOptions = {
-      from: `"Expense Tracker App" <maddison53@ethereal.email>`,
+      from: `"Expense Tracker App" <martina.parker@ethereal.email>`,
       to: toEmail,
       subject: "Reset Your Expense Tracker Password",
       text: `Click the following link to reset your password: ${resetLink}`,
