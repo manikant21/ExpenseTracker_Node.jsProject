@@ -2,6 +2,7 @@ import {User} from "../models/user.model.js";
 import bcrypt from 'bcrypt';
 import dotenv from 'dotenv'
 import jwt from 'jsonwebtoken';
+import logger from "../utils/logger.js";
 
 dotenv.config();
 
@@ -28,8 +29,9 @@ export const addUser = async(req, res) => {
         })
         return res.status(201).json({data: user});
     }
-    catch(err) {
-        console.log(err);
+    catch(error) {
+        // console.log(err);
+        logger.error(`Error in /user route: ${error.message}`);
         return res.status(500).json("Something went wrong");
     }
 }
@@ -56,7 +58,8 @@ export const loginUser = async(req, res) => {
         return res.status(200).json({success: true, msg: "User login sucessful", user_id:user.id, token: generateAccessToken(user.id, user.name)});
 
     } catch (error) {
-        console.log(error);
+        // console.log(error);
+         logger.error(`Error in /user route: ${error.message}`);
         return res.status(500).json({success:false, msg: "Something went wrong"});
     }
 }
@@ -65,7 +68,8 @@ export const getUserStatus = async (req, res) => {
   try {
     const user = await User.findByPk(req.user.id); 
     res.json({ isPremium: user.isPremium });
-  } catch (err) {
+  } catch (error) {
+     logger.error(`Error in /user route: ${error.message}`);
     res.status(500).json({ error: "Unable to fetch user status" });
   }
 };

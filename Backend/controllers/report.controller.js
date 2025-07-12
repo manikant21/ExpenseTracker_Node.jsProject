@@ -2,6 +2,7 @@ import { User } from "../models/user.model.js";
 import { Expense } from "../models/expense.model.js";
 import { Op } from "sequelize";
 import PDFDocument from "pdfkit";
+import logger from "../utils/logger.js";
 
 
 export const dailyReport = async (req, res) => {
@@ -45,7 +46,8 @@ export const dailyReport = async (req, res) => {
     });
 
   } catch (error) {
-
+     logger.error(`Error in /report route: ${error.message}`);
+     res.status(500).json({ msg: "Internal Server Error" });
   }
 }
 // 
@@ -90,7 +92,7 @@ export const downloadPDFReport = async (req, res) => {
     const headers = ["Date", "Note", "Category", "Description", "Amount"];
     const columnPositions = [50, 120, 220, 300, 450];
     const columnWidths = [70, 100, 80, 150, 70];
-    const rowHeight = 20; // Fixed row height
+    const rowHeight = 20; 
 
     // Draw Headers with consistent height
     const headerY = doc.y;
@@ -121,7 +123,7 @@ export const downloadPDFReport = async (req, res) => {
       // Process text to fit columns
       const processText = (text, maxWidth) => {
         if (doc.widthOfString(text) > maxWidth) {
-          return text.substring(0, Math.floor(maxWidth / 7)) + "..."; // Approximate chars per width
+          return text.substring(0, Math.floor(maxWidth / 7)) + "..."; 
         }
         return text;
       };
@@ -151,8 +153,9 @@ export const downloadPDFReport = async (req, res) => {
 
     doc.end();
 
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    // 
+    logger.error(`Error in /report route: ${error.message}`);
     res.status(500).json({ msg: "Error generating PDF report" });
   }
 };
@@ -228,7 +231,8 @@ export const getFilteredReport = async (req, res) => {
       lastPage: Math.ceil(total / limit)
     });
   } catch (error) {
-    console.error(error);
+    // console.error(error);
+    logger.error(`Error in /report route: ${error.message}`);
     res.status(500).json({ msg: "Internal Server Error" });
   }
 };

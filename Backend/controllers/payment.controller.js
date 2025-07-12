@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import { Order } from "../models/order.model.js";
 import { User } from "../models/user.model.js";
 import dotenv from 'dotenv'
+import logger from "../utils/logger.js";
 
 dotenv.config();
 
@@ -28,7 +29,8 @@ export const createCashfreeOrder = async (req, res) => {
     res.status(200).json({ paymentSessionId });
 
   } catch (error) {
-    console.error("Error in creating Cashfree order:", error);
+    // console.error("Error in creating Cashfree order:", error);
+    logger.error(`Error in /payment route: ${error.message}`);
     res.status(500).json({ message: "Failed to create order" });
   }
 };
@@ -83,8 +85,9 @@ export const handlePaymentStatus = async (req, res) => {
         <body></body>
       </html>
     `);
-  } catch (err) {
-    console.error("Error fetching payment status:", err);
+  } catch (error) {
+    // console.error("Error fetching payment status:", err);
+    logger.error(`Error in /payment route: ${error.message}`);
     res.status(500).send("Error verifying payment status.");
   }
 };

@@ -4,6 +4,7 @@ import { User } from '../models/user.model.js';
 import { v4 as uuidv4 } from 'uuid';
 import { ForgotPasswordRequests } from '../models/forgotPasswordRequests.model.js';
 import bcrypt from 'bcrypt';
+import logger from '../utils/logger.js';
 
 
 
@@ -24,7 +25,7 @@ export const forgotPassword = async (req, res) => {
             await transaction.rollback();
             return res.status(400).json({ msg: "No such email present in DB" })
         }
-        console.log(user);
+        // console.log(user);
         const id = uuidv4();
         await ForgotPasswordRequests.create({
             id: id,
@@ -40,9 +41,10 @@ export const forgotPassword = async (req, res) => {
 
         await transaction.commit();
         return res.status(200).json({ msg: "Reset password email sent" });
-    } catch (err) {
-        console.log(err);
+    } catch (error) {
+        // console.log(err);
         await transaction.rollback();
+        logger.error(`Error in /password route: ${error.message}`);
         return res.status(500).json({ msg: "Failed to send email" });
     }
 };
@@ -79,7 +81,8 @@ export const resetPassword = async (req, res) => {
             `)
 
     } catch (error) {
-        console.log(error);
+        // console.log(error);
+           logger.error(`Error in /password route: ${error.message}`);
         return res.status(500).json({ msg: "Failed to Reset Password" });
     }
 }
@@ -89,9 +92,9 @@ export const updatePassword = async (req, res) => {
     const transaction = await sequelize.transaction();
     try {
         const { newpassword } = req.body;
-        console.log(newpassword);
+        // console.log(newpassword);
         const { id } = req.params;
-        console.log(id);
+        // console.log(id);
         const forgotRequest = await ForgotPasswordRequests.findByPk(id);
         if(!forgotRequest) {
             await transaction.rollback();
@@ -114,8 +117,9 @@ export const updatePassword = async (req, res) => {
         return res.redirect("https://expense-tracker-node-js-project.vercel.app/login/login.html");
 
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         await transaction.rollback();
+           logger.error(`Error in /password route: ${error.message}`);
         return res.status(500).json({ msg: "Failed to  update new Password" });
     }
 }

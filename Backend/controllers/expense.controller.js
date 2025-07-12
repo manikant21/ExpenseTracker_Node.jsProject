@@ -2,7 +2,7 @@ import { Expense } from "../models/expense.model.js";
 import { User } from "../models/user.model.js";
 import { Sequelize } from "sequelize";
 import { sequelize } from "../config/db.config.js";
-
+import logger from "../utils/logger.js";
 
 
 export const getExpense = async (req, res) => {
@@ -37,7 +37,8 @@ export const getExpense = async (req, res) => {
 
         });
     } catch (error) {
-        console.log(error.message);
+        // console.log(error.message);
+           logger.error(`Error in /expense route: ${error.message}`);
         return res.status(500).json({ "msg": "Unable to fetch details from DB" });
     }
 }
@@ -79,8 +80,9 @@ export const insertExpense = async (req, res) => {
 
 
     } catch (error) {
-        console.log(error.message);
+        // console.log(error.message);
         await transaction.rollback();
+        logger.error(`Error in /expense route: ${error.message}`);
         return res.status(500).json({ msg: "Unable to insert data into DB" });
     }
 }
@@ -127,8 +129,9 @@ export const deleteExpense = async (req, res) => {
         await transaction.commit();
         return res.status(200).json({ msg: "Expense deleted successfully" });
     } catch (error) {
-        console.log(error.message);
+        // console.log(error.message);
         await transaction.rollback();
+        logger.error(`Error in /expense route: ${error.message}`);
         return res.status(500).json({ msg: "Unable to delete expense from DB" });
     }
 }
@@ -179,8 +182,9 @@ export const editExpense = async (req, res) => {
         return res.status(200).json({ msg: data });
 
     } catch (error) {
-        console.log(error.message);
+        // console.log(error.message);
         await transaction.rollback();
+        logger.error(`Error in /expense route: ${error.message}`);
         return res.status(500).json({ msg: "Unable to update data into DB" });
     }
 }
@@ -245,7 +249,8 @@ export const getTotalExpenseByEachUser = async (req, res) => {
             lastPage: Math.ceil(total / limit)
         });
     } catch (error) {
-        console.log(error.message);
+        // console.log(error.message);
+        logger.error(`Error in /expense route: ${error.message}`);
         return res.status(500).json({ msg: "Unable to expense data for each user from DB" });
     }
 }
