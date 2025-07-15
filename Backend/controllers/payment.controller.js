@@ -30,7 +30,7 @@ export const createCashfreeOrder = async (req, res) => {
 
   } catch (error) {
     // console.error("Error in creating Cashfree order:", error);
-    logger.error(`Error in /payment route: ${error.message}`);
+    logger.error(`Error in /payment route, User: ${req.user?.email || "Unknown"} - ${err.stack} - ${error.message}`);
     res.status(500).json({ message: "Failed to create order" });
   }
 };
@@ -87,7 +87,7 @@ export const handlePaymentStatus = async (req, res) => {
     `);
   } catch (error) {
     // console.error("Error fetching payment status:", err);
-    logger.error(`Error in /payment route: ${error.message}`);
+    logger.error(`Error in /payment route, User: ${req.user?.email || "Unknown"} - ${err.stack} - ${error.message}`);
     res.status(500).send("Error verifying payment status.");
   }
 };

@@ -9,7 +9,7 @@ import {router as forgotPasswordRouter} from './routes/password.route.js';
 import {router as reportRouter} from './routes/report.route.js';
 import compression from "compression";
 import cors from "cors";
-import { requestLogger } from "./middlewares/loggerMiddleware.js";
+
 
 
 dotenv.config();
@@ -21,7 +21,7 @@ app.use(cors({origin: "*"}));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-app.use(requestLogger); 
+
 app.use(cookieParser());
 app.use(compression())
 const PORT = process.env.PORT || 5000;

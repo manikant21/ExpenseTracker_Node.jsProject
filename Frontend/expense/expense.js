@@ -1,5 +1,6 @@
-const BASE_URL = "http://expensetracker-env.eba-ex3dcvcn.ap-south-1.elasticbeanstalk.com/api/v1/expense";
-const proxyUrl = "https://cors-anywhere.herokuapp.com/";
+// const BASE_URL = "http://expensetracker-env.eba-ex3dcvcn.ap-south-1.elasticbeanstalk.com/api/v1/expense";
+const BASE_URL = "http://localhost:3000/api/v1/expense";
+// const proxyUrl = "https://cors-anywhere.herokuapp.com/";
 let editingId = null;
 const token = localStorage.getItem("token")
 // const userId = localStorage.getItem("userId");
@@ -42,7 +43,7 @@ reportBtn.addEventListener('click', () => {
 
 document.getElementById("buyPremiumBtn").addEventListener("click", async () => {
     try {
-        const response = await axios.post(`${proxyUrl}http://expensetracker-env.eba-ex3dcvcn.ap-south-1.elasticbeanstalk.com/api/v1/payment/create-order`, {}, {
+        const response = await axios.post("http://localhost:3000/api/v1/payment/create-order", {}, {
             headers: {
                 "Authorization": token
             }
@@ -67,7 +68,7 @@ document.getElementById("buyPremiumBtn").addEventListener("click", async () => {
 
 document.addEventListener("DOMContentLoaded", async () => {
     try {
-        const response = await axios.get(`${proxyUrl}http://expensetracker-env.eba-ex3dcvcn.ap-south-1.elasticbeanstalk.com/api/v1/user/status`, {
+        const response = await axios.get(`http://localhost:3000/api/v1/user/status`, {
             headers: { "Authorization": token }
         });
 
@@ -106,7 +107,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 const fetchLeaderData = async (page = 1) => {
     try {
-        const response = await axios.get(`${proxyUrl}${BASE_URL}/allexpensedetails?page=${page}&limit=${leaderPerPage}`, {
+        const response = await axios.get(`${BASE_URL}/allexpensedetails?page=${page}&limit=${leaderPerPage}`, {
             headers: {
                 "Authorization": token
             }
@@ -170,7 +171,7 @@ function renderPaginationForLeaders(data, page) {
 
 
 const showLeaderboardData = (data) => {
-    console.log(data.name, data.totalExpenses);
+    // console.log(data.name, data.totalExpenses);
     // const totalExpense = data.totalExpense ?? 0;
     let ul_leader = document.getElementById("ul_leader");
     let list = document.createElement("li");
@@ -187,7 +188,7 @@ logout.addEventListener('click', () => {
 if (!token) {
     window.location.href = "../login/login.html";
 } else {
-    console.log("Logged in User token:", token);
+    // console.log("Logged in User token:", token);
     form.addEventListener("submit", async (event) => {
         event.preventDefault();
         const amount = event.target.amount.value;
@@ -200,10 +201,10 @@ if (!token) {
             description: description,
             category: category
         }
-        console.log(expenseObj);
+        // console.log(expenseObj);
         try {
             if (editingId) {
-                const res = await axios.put(`${proxyUrl}${BASE_URL}/edit/${editingId}`, expenseObj, {
+                const res = await axios.put(`${BASE_URL}/edit/${editingId}`, expenseObj, {
                     headers: {
                         "Authorization": token
                     }
@@ -214,7 +215,7 @@ if (!token) {
                 console.log("Edited:", res.data.data);
                 editingId = null;
             } else {
-                const res = await axios.post(`${proxyUrl}${BASE_URL}/add`, expenseObj, {
+                const res = await axios.post(`${BASE_URL}/add`, expenseObj, {
                     headers: {
                         "Authorization": token
                     }
@@ -239,7 +240,7 @@ if (!token) {
     })
 
     const showData = (data) => {
-        console.log(data);
+        // console.log(data);
         let ul = document.getElementById("ul");
 
         let list = document.createElement("li");
@@ -249,7 +250,7 @@ if (!token) {
         delebtn.textContent = "Delete";
         delebtn.addEventListener("click", async () => {
             try {
-                await axios.delete(`${proxyUrl}${BASE_URL}/delete/${data.id}`, {
+                await axios.delete(`${BASE_URL}/delete/${data.id}`, {
                     headers: {
                         "Authorization": token
                     }
@@ -285,13 +286,13 @@ if (!token) {
 
     const fetchExpenseData = async (page = 1) => {
         try {
-            const response = await axios.get(`${proxyUrl}${BASE_URL}/?page=${page}&limit=${itemsPerPage}`, {
+            const response = await axios.get(`${BASE_URL}/?page=${page}&limit=${itemsPerPage}`, {
                 headers: {
                     "Authorization": token
                 }
             });
              const data = response.data;
-            console.log(data);
+            // console.log(data);
             let ul = document.getElementById("ul");
             ul.innerHTML = "";
             for (let i = 0; i < data.expense.length; i++) {

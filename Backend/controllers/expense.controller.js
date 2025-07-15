@@ -38,7 +38,7 @@ export const getExpense = async (req, res) => {
         });
     } catch (error) {
         // console.log(error.message);
-           logger.error(`Error in /expense route: ${error.message}`);
+           logger.error(`Error in /expense route, User: ${req.user?.email || "Unknown"} - ${err.stack} - ${error.message}`);
         return res.status(500).json({ "msg": "Unable to fetch details from DB" });
     }
 }
@@ -82,7 +82,7 @@ export const insertExpense = async (req, res) => {
     } catch (error) {
         // console.log(error.message);
         await transaction.rollback();
-        logger.error(`Error in /expense route: ${error.message}`);
+        logger.error(`Error in /expense route, User: ${req.user?.email || "Unknown"} - ${err.stack} - ${error.message}`);
         return res.status(500).json({ msg: "Unable to insert data into DB" });
     }
 }
@@ -131,7 +131,7 @@ export const deleteExpense = async (req, res) => {
     } catch (error) {
         // console.log(error.message);
         await transaction.rollback();
-        logger.error(`Error in /expense route: ${error.message}`);
+        logger.error(`Error in /expense route, User: ${req.user?.email || "Unknown"} - ${err.stack} - ${error.message}`);
         return res.status(500).json({ msg: "Unable to delete expense from DB" });
     }
 }
@@ -184,7 +184,7 @@ export const editExpense = async (req, res) => {
     } catch (error) {
         // console.log(error.message);
         await transaction.rollback();
-        logger.error(`Error in /expense route: ${error.message}`);
+        logger.error(`Error in /expense route, User: ${req.user?.email || "Unknown"} - ${err.stack} - ${error.message}`);
         return res.status(500).json({ msg: "Unable to update data into DB" });
     }
 }
@@ -250,7 +250,7 @@ export const getTotalExpenseByEachUser = async (req, res) => {
         });
     } catch (error) {
         // console.log(error.message);
-        logger.error(`Error in /expense route: ${error.message}`);
+        logger.error(`Error in /expense route, User: ${req.user?.email || "Unknown"} - ${err.stack} - ${error.message}`);
         return res.status(500).json({ msg: "Unable to expense data for each user from DB" });
     }
 }

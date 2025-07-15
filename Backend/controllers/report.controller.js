@@ -3,6 +3,9 @@ import { Expense } from "../models/expense.model.js";
 import { Op } from "sequelize";
 import PDFDocument from "pdfkit";
 import logger from "../utils/logger.js";
+import { uploadToS3 } from "../services/s3Services.js";
+import { FilesDownloaded } from "../models/filesDownloaded.js";
+
 
 
 export const dailyReport = async (req, res) => {
@@ -34,6 +37,13 @@ export const dailyReport = async (req, res) => {
       limit: limit
     })
 
+    const fileInfo = await FilesDownloaded.findAll({
+      where: {
+        userId: req.user.id
+      }
+    })
+    console.log(fileInfo);
+
     return res.status(200).json({
       expense: expense,
       totalAmount: totalAmount.toFixed(2),
@@ -42,123 +52,124 @@ export const dailyReport = async (req, res) => {
       nextPage: page + 1,
       hasPreviousPage: page > 1,
       previousPage: page - 1,
-      lastPage: Math.ceil(total / limit)
+      lastPage: Math.ceil(total / limit),
+      fileInfo
     });
 
   } catch (error) {
-     logger.error(`Error in /report route: ${error.message}`);
+     logger.error(`Error in /report route, User: ${req.user?.email || "Unknown"} - ${err.stack} - ${error.message}`);
      res.status(500).json({ msg: "Internal Server Error" });
   }
 }
 // 
 
-export const downloadPDFReport = async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const { type } = req.params;
-    const startDate = getDateRange(type);
+// export const downloadPDFReport = async (req, res) => {
+//   try {
+//     const userId = req.user.id;
+//     const { type } = req.params;
+//     const startDate = getDateRange(type);
 
-    const expenses = await Expense.findAll({
-      where: {
-        userId,
-        createdAt: { [Op.gte]: startDate }
-      },
-      include: [{ model: User }]
-    });
+//     const expenses = await Expense.findAll({
+//       where: {
+//         userId,
+//         createdAt: { [Op.gte]: startDate }
+//       },
+//       include: [{ model: User }]
+//     });
 
-    const doc = new PDFDocument({ margin: 50 });
-    res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", `attachment; filename=${type}-report.pdf`);
-    doc.pipe(res);
+//     const doc = new PDFDocument({ margin: 50 });
+//     res.setHeader("Content-Type", "application/pdf");
+//     res.setHeader("Content-Disposition", `attachment; filename=${type}-report.pdf`);
+//     doc.pipe(res);
 
-    // Header
-    doc.fontSize(20).text(`${type.toUpperCase()} EXPENSE REPORT`, { align: "center" });
-    doc.moveDown();
-    doc.fontSize(14).text(`Generated On: ${new Date().toLocaleDateString()}`);
-    doc.moveDown();
+//     // Header
+//     doc.fontSize(20).text(`${type.toUpperCase()} EXPENSE REPORT`, { align: "center" });
+//     doc.moveDown();
+//     doc.fontSize(14).text(`Generated On: ${new Date().toLocaleDateString()}`);
+//     doc.moveDown();
 
-    if (!expenses.length) {
-      doc.fontSize(12).text("No expense data available for this period.", { align: "center" });
-      doc.end();
-      return;
-    }
+//     if (!expenses.length) {
+//       doc.fontSize(12).text("No expense data available for this period.", { align: "center" });
+//       doc.end();
+//       return;
+//     }
 
-    // Total Amount
-    const totalAmount = expenses.reduce((sum, exp) => sum + parseFloat(exp.amount), 0);
-    doc.fontSize(14).text(`Total Expenses: Rs. ${totalAmount.toFixed(2)}`, { align: "left" });
-    doc.moveDown(2);
+//     // Total Amount
+//     const totalAmount = expenses.reduce((sum, exp) => sum + parseFloat(exp.amount), 0);
+//     doc.fontSize(14).text(`Total Expenses: Rs. ${totalAmount.toFixed(2)}`, { align: "left" });
+//     doc.moveDown(2);
 
-    // Table Setup
-    const headers = ["Date", "Note", "Category", "Description", "Amount"];
-    const columnPositions = [50, 120, 220, 300, 450];
-    const columnWidths = [70, 100, 80, 150, 70];
-    const rowHeight = 20; 
+//     // Table Setup
+//     const headers = ["Date", "Note", "Category", "Description", "Amount"];
+//     const columnPositions = [50, 120, 220, 300, 450];
+//     const columnWidths = [70, 100, 80, 150, 70];
+//     const rowHeight = 20; 
 
-    // Draw Headers with consistent height
-    const headerY = doc.y;
-    doc.font('Helvetica-Bold').fontSize(12);
+//     // Draw Headers with consistent height
+//     const headerY = doc.y;
+//     doc.font('Helvetica-Bold').fontSize(12);
     
-    headers.forEach((header, i) => {
-      doc.text(header, columnPositions[i], headerY, {
-        width: columnWidths[i],
-        align: i === 4 ? 'right' : 'left'
-      });
-    });
+//     headers.forEach((header, i) => {
+//       doc.text(header, columnPositions[i], headerY, {
+//         width: columnWidths[i],
+//         align: i === 4 ? 'right' : 'left'
+//       });
+//     });
 
-    // Draw horizontal line
-    doc.moveTo(50, headerY + rowHeight).lineTo(520, headerY + rowHeight).stroke();
-    doc.moveDown(0.5);
+//     // Draw horizontal line
+//     doc.moveTo(50, headerY + rowHeight).lineTo(520, headerY + rowHeight).stroke();
+//     doc.moveDown(0.5);
 
-    // Draw Rows with perfect alignment
-    doc.font('Helvetica').fontSize(10);
-    expenses.forEach((exp, rowIndex) => {
-      const rowY = headerY + rowHeight + 5 + (rowIndex * rowHeight);
+//     // Draw Rows with perfect alignment
+//     doc.font('Helvetica').fontSize(10);
+//     expenses.forEach((exp, rowIndex) => {
+//       const rowY = headerY + rowHeight + 5 + (rowIndex * rowHeight);
       
-      const date = new Date(exp.createdAt).toISOString().split("T")[0];
-      const note = exp.note || "N/A";
-      const category = exp.category || "N/A";
-      let description = exp.description || "N/A";
-      const amount = `Rs. ${parseFloat(exp.amount).toFixed(2)}`;
+//       const date = new Date(exp.createdAt).toISOString().split("T")[0];
+//       const note = exp.note || "N/A";
+//       const category = exp.category || "N/A";
+//       let description = exp.description || "N/A";
+//       const amount = `Rs. ${parseFloat(exp.amount).toFixed(2)}`;
 
-      // Process text to fit columns
-      const processText = (text, maxWidth) => {
-        if (doc.widthOfString(text) > maxWidth) {
-          return text.substring(0, Math.floor(maxWidth / 7)) + "..."; 
-        }
-        return text;
-      };
+//       // Process text to fit columns
+//       const processText = (text, maxWidth) => {
+//         if (doc.widthOfString(text) > maxWidth) {
+//           return text.substring(0, Math.floor(maxWidth / 7)) + "..."; 
+//         }
+//         return text;
+//       };
 
-      // Draw each cell at the exact same Y position
-      doc.text(processText(date, columnWidths[0]), columnPositions[0], rowY, {
-        width: columnWidths[0]
-      });
+//       // Draw each cell at the exact same Y position
+//       doc.text(processText(date, columnWidths[0]), columnPositions[0], rowY, {
+//         width: columnWidths[0]
+//       });
       
-      doc.text(processText(note, columnWidths[1]), columnPositions[1], rowY, {
-        width: columnWidths[1]
-      });
+//       doc.text(processText(note, columnWidths[1]), columnPositions[1], rowY, {
+//         width: columnWidths[1]
+//       });
       
-      doc.text(category, columnPositions[2], rowY, {
-        width: columnWidths[2]
-      });
+//       doc.text(category, columnPositions[2], rowY, {
+//         width: columnWidths[2]
+//       });
       
-      doc.text(processText(description, columnWidths[3]), columnPositions[3], rowY, {
-        width: columnWidths[3]
-      });
+//       doc.text(processText(description, columnWidths[3]), columnPositions[3], rowY, {
+//         width: columnWidths[3]
+//       });
       
-      doc.text(amount, columnPositions[4], rowY, {
-        width: columnWidths[4],
-        align: 'right'
-      });
-    });
+//       doc.text(amount, columnPositions[4], rowY, {
+//         width: columnWidths[4],
+//         align: 'right'
+//       });
+//     });
 
-    doc.end();
+//     doc.end();
 
-  } catch (error) {
-    // 
-    logger.error(`Error in /report route: ${error.message}`);
-    res.status(500).json({ msg: "Error generating PDF report" });
-  }
-};
+//   } catch (error) {
+//     // 
+//     logger.error(`Error in /report route, User: ${req.user?.email || "Unknown"} - ${err.stack} - ${error.message}`);
+//     res.status(500).json({ msg: "Error generating PDF report" });
+//   }
+// };
 
 
 
@@ -232,7 +243,36 @@ export const getFilteredReport = async (req, res) => {
     });
   } catch (error) {
     // console.error(error);
-    logger.error(`Error in /report route: ${error.message}`);
+    logger.error(`Error in /report route, User: ${req.user?.email || "Unknown"} - ${err.stack} - ${error.message}`);
     res.status(500).json({ msg: "Internal Server Error" });
   }
 };
+
+
+
+export const downloadExpense = async (req, res) => {
+  // console.log(req.user.id);
+  try {
+    const expense = await Expense.findAll({
+      where: {
+        userId: req.user.id
+      }
+    })
+
+    let stringifiedExpenses = JSON.stringify(expense);
+    let filename = `Expense_${req.user.id}_${Date.now()}.txt`;
+    let fileURL = await uploadToS3(stringifiedExpenses, filename);
+     if (!fileURL) {
+      return res.status(500).json({ msg: "Failed to upload file to S3" });
+    }
+    await FilesDownloaded.create({
+      userId: req.user.id,
+      fileUrl: fileURL
+    })
+    return res.status(200).json({fileURL});
+  }
+  catch(error) {
+    logger.error(`Error in /report route, User: ${req.user?.email || "Unknown"} - ${err.stack} - ${error.message}`);
+    res.status(500).json({ msg: "Internal Server Error" });
+  }
+}

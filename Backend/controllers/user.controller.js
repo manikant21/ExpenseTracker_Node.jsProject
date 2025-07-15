@@ -31,7 +31,7 @@ export const addUser = async(req, res) => {
     }
     catch(error) {
         // console.log(err);
-        logger.error(`Error in /user route: ${error.message}`);
+        logger.error(`Error in /user route, User: ${req.user?.email || "Unknown"} - ${err.stack} - ${error.message}`);
         return res.status(500).json("Something went wrong");
     }
 }
@@ -69,7 +69,7 @@ export const getUserStatus = async (req, res) => {
     const user = await User.findByPk(req.user.id); 
     res.json({ isPremium: user.isPremium });
   } catch (error) {
-     logger.error(`Error in /user route: ${error.message}`);
+     logger.error(`Error in /user route, User: ${req.user?.email || "Unknown"} - ${err.stack} - ${error.message}`);
     res.status(500).json({ error: "Unable to fetch user status" });
   }
 };

@@ -34,8 +34,8 @@ export const forgotPassword = async (req, res) => {
             expiresAt: new Date(Date.now() + 10 * 60 * 1000)
         }, { transaction })
 
-        
-        const resetLink = `http://expensetracker-env.eba-ex3dcvcn.ap-south-1.elasticbeanstalk.com/api/v1/password/resetpassword/${id}`;
+            const resetLink = `http://localhost:3000/api/v1/password/$id{id}`        
+        // const resetLink = `http://expensetracker-env.eba-ex3dcvcn.ap-south-1.elasticbeanstalk.com/api/v1/password/resetpassword/${id}`;
 
         await sendResetPasswordEmail(email, resetLink);
 
@@ -44,7 +44,7 @@ export const forgotPassword = async (req, res) => {
     } catch (error) {
         // console.log(err);
         await transaction.rollback();
-        logger.error(`Error in /password route: ${error.message}`);
+        logger.error(`Error in /password route, User: ${req.user?.email || "Unknown"} - ${err.stack} - ${error.message}`);
         return res.status(500).json({ msg: "Failed to send email" });
     }
 };
@@ -71,7 +71,7 @@ export const resetPassword = async (req, res) => {
                     <title>Reset Password</title>
                 </head>
                 <body>
-                    <form action="http://expensetracker-env.eba-ex3dcvcn.ap-south-1.elasticbeanstalk.com/api/v1/password/updatepassword/${id}" method="POST">
+                    <form action="http://localhost:3000/api/v1/password/updatepassword/${id}" method="POST">
                         <label for="newpassword">Enter New Password:</label>
                         <input type="password" name="newpassword" required />
                         <button type="submit">Reset Password</button>
@@ -82,7 +82,7 @@ export const resetPassword = async (req, res) => {
 
     } catch (error) {
         // console.log(error);
-           logger.error(`Error in /password route: ${error.message}`);
+           logger.error(`Error in /password route, User: ${req.user?.email || "Unknown"} - ${err.stack} - ${error.message}`);
         return res.status(500).json({ msg: "Failed to Reset Password" });
     }
 }
@@ -114,12 +114,13 @@ export const updatePassword = async (req, res) => {
 
         await user.update({password: hashedPassword},{transaction});
         await transaction.commit();
-        return res.redirect("https://expense-tracker-node-js-project.vercel.app/login/login.html");
+        // return res.redirect("https://expense-tracker-node-js-project.vercel.app/login/login.html");
+        return res.redirect("http://127.0.0.1:5501/Frontend/login/login.html");
 
     } catch (error) {
         // console.log(error);
         await transaction.rollback();
-           logger.error(`Error in /password route: ${error.message}`);
+           logger.error(`Error in /password route, User: ${req.user?.email || "Unknown"} - ${err.stack} - ${error.message}`);
         return res.status(500).json({ msg: "Failed to  update new Password" });
     }
 }

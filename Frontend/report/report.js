@@ -2,8 +2,9 @@
 
 const downloadPdfBtn = document.getElementById("downloadPdfBtn");
 const tableContainer = document.getElementById("tableContainer");
-const BASE_URL = "http://expensetracker-env.eba-ex3dcvcn.ap-south-1.elasticbeanstalk.com/api/v1/report";
-const proxyUrl = "https://cors-anywhere.herokuapp.com/";
+// const BASE_URL = "http://expensetracker-env.eba-ex3dcvcn.ap-south-1.elasticbeanstalk.com/api/v1/report";
+const BASE_URL = "http://localhost:3000/api/v1/report"
+// const proxyUrl = "https://cors-anywhere.herokuapp.com/";
 const filterType = document.getElementById("filterType");
 const retrunBtn = document.getElementById("returnBtn");
 const logout = document.getElementById("logout");
@@ -12,7 +13,9 @@ const reportPerPageSelector = document.getElementById("reportPerPage");
 const reportTypePerPageSelector = document.getElementById("reportTypePerPage");
 const reportTypePerPageContainer = document.getElementById("reportTypePerPageContainer");
 const reportPerPageContainer = document.getElementById("reportPerPageContainer");
+const fileInfoContainer = document.getElementById("fileInfoContainer");
 let select = "";
+let isPremium = "";
 
 
 
@@ -35,15 +38,15 @@ logout.addEventListener('click', () => {
 
 const isPremiumCheck = async () => {
     try {
-        const response = await axios.get(`${proxyUrl}http://expensetracker-env.eba-ex3dcvcn.ap-south-1.elasticbeanstalk.com/api/v1/user/status`, {
+        const response = await axios.get("http://localhost:3000/api/v1/user/status", {
             headers: { "Authorization": token }
         });
 
-        const isPremium = response.data.isPremium;
-        console.log(isPremium);
-        if (isPremium) {
-            downloadPdfBtn.classList.remove("hidden");
-        }
+        isPremium = response.data.isPremium;
+        // console.log(isPremium);
+        // if (isPremium) {
+        //     downloadPdfBtn.classList.remove("hidden");
+        // }
 
     } catch (error) {
         console.log(error);
@@ -60,36 +63,62 @@ filterType.addEventListener("change", () => {
 });
 
 
+downloadPdfBtn.addEventListener("click", async() => {
+    if (!isPremium) {
+            alert("You are not premium user!!!...Please purchase premium first")
+            return;
+             
+        };
 
-
-downloadPdfBtn.addEventListener("click", async () => {
-    const type = filterType.value|| "daily";
-
-    try {
-        const response = await axios.get(`${proxyUrl}http://expensetracker-env.eba-ex3dcvcn.ap-south-1.elasticbeanstalk.com/api/v1/report/download/pdf/${type}`, {
-            responseType: "blob",
+        try{
+            
+            const response = await axios.get("http://localhost:3000/api/v1/report/download", {
             headers: { "Authorization": token }
+            
         });
+        // console.log(response.data);
+        let a= document.createElement('a');
+        a.href = response.data.fileURL;
+        a.download = 'MyExpense.csv';
+        a.click();
+        await fetchReport();
 
-        const blob = new Blob([response.data], { type: "application/pdf" });
+        }
+        catch(err) {
+            console.error(err);
+            alert("Error downloading PDF report.");
+        }
+})
 
-        const link = document.createElement("a");
-        link.href = window.URL.createObjectURL(blob);
-        link.download = `${type}-report.pdf`;
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
 
-    } catch (err) {
-        console.error(err);
-        alert("Error downloading PDF report.");
-    }
-});
+// downloadPdfBtn.addEventListener("click", async () => {
+//     const type = filterType.value|| "daily";
+
+//     try {
+//         const response = await axios.get("http://localhost:3000/api/v1/report/download", {
+//             responseType: "blob",
+//             headers: { "Authorization": token }
+//         });
+
+//         const blob = new Blob([response.data], { type: "application/pdf" });
+
+//         const link = document.createElement("a");
+//         link.href = window.URL.createObjectURL(blob);
+//         link.download = `${type}-report.pdf`;
+//         document.body.appendChild(link);
+//         link.click();
+//         link.remove();
+
+//     } catch (err) {
+//         console.error(err);
+//         alert("Error downloading PDF report.");
+//     }
+// });
 
 
 const fetchReportType = async (type, page = 1) => {
     try {
-        const response = await axios.get(`${proxyUrl}${BASE_URL}/${type}?page=${page}&limit=${reportTypePerPage}`, {
+        const response = await axios.get(`${BASE_URL}/${type}?page=${page}&limit=${reportTypePerPage}`, {
             headers: { "Authorization": token }
         });
         const data = response.data;
@@ -157,11 +186,11 @@ function renderPaginationForCategory(data, page, type) {
 const fetchReport = async (page = 1) => {
     try {
 
-        const response = await axios.get(`${proxyUrl}${BASE_URL}/dailyreport?page=${page}&limit=${reportPerPage}`, {
+        const response = await axios.get(`${BASE_URL}/dailyreport?page=${page}&limit=${reportPerPage}`, {
             headers: { "Authorization": token }
         });
         const data = response.data;
-        // console.log(data.expense);
+        console.log(data);
         const totalAmount = response.data.totalAmount;
         const heading = document.createElement("h1");
         heading.innerHTML = "Total Report";
@@ -175,6 +204,7 @@ const fetchReport = async (page = 1) => {
         showData(data.expense);
         renderPagination(data, page);
         showTotalExpense(totalAmount);
+        downloadedFileInfo(data.fileInfo);
 
 
 
@@ -183,6 +213,30 @@ const fetchReport = async (page = 1) => {
         alert("Something went wrong!");
     }
 };
+
+function downloadedFileInfo (data) {
+    fileInfoContainer.innerHTML="";
+    
+    const heading = document.createElement('h3');
+    if(data.length >0 && isPremium){
+         heading.textContent = "All time downloaded expense file-:"
+    }
+    // heading.textContent = "All time downloaded expense file-:"
+    fileInfoContainer.appendChild(heading);
+    const ul = document.createElement('ul');
+    for(let i=0;i<data.length;i++) {
+       const list = document.createElement("li");
+        const date = new Date(data[i].createdAt).toLocaleString();
+
+        list.innerHTML = `<strong>Date:</strong> ${date} <br> <a href="${data[i].fileUrl}" target="_blank" class="text-blue-500 underline">Download File</a>`;
+        ul.appendChild(list);
+    }
+    fileInfoContainer.appendChild(ul);
+
+
+   
+
+}
 
 
 let reportPerPage = localStorage.getItem("reportPerPage") || 3;
