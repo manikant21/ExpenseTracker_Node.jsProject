@@ -1,6 +1,6 @@
 // const BASE_URL_USER = "http://expensetracker-env.eba-ex3dcvcn.ap-south-1.elasticbeanstalk.com/api/v1/user";
-const BASE_URL_USER = "http://localhost:3000/api/v1/user";
-// const proxyUrl = "https://cors-anywhere.herokuapp.com/";
+const BASE_URL_USER = "http://3.108.55.19:3000/api/v1/user";
+const proxyUrl = "https://cors-anywhere.herokuapp.com/";
 const form = document.getElementById("register_form");
 const name = document.getElementById("name");
 const email = document.getElementById("email");
@@ -21,7 +21,7 @@ form.addEventListener('submit', async (event) => {
     }
     console.log(signUpDetails);
     try {
-        const response = await axios.post(`${BASE_URL_USER}/register`, signUpDetails);
+        const response = await axios.post(`${proxyUrl}${BASE_URL_USER}/register`, signUpDetails);
         alert("User register successfully...Please login!!");
         console.log(response.status);
         console.log("User details added!");

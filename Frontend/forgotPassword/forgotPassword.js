@@ -1,6 +1,6 @@
 const form = document.getElementById("form");
 const email= document.getElementById("email_password");
-// const proxyUrl = "https://cors-anywhere.herokuapp.com/";
+const proxyUrl = "https://cors-anywhere.herokuapp.com/";
 
 form.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -12,7 +12,7 @@ form.addEventListener('submit', async (event) => {
         email: email.value
     }
     try {
-        const response = await axios.post(`http://localhost:3000/api/v1/password/forgotpassword`, data);
+        const response = await axios.post(`${proxyUrl}http://3.108.55.19:3000/api/v1/password/forgotpassword`, data);
     } catch (error) {
         console.log(error);
     }

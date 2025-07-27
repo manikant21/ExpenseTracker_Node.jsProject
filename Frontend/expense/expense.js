@@ -1,6 +1,7 @@
 // const BASE_URL = "http://expensetracker-env.eba-ex3dcvcn.ap-south-1.elasticbeanstalk.com/api/v1/expense";
-const BASE_URL = "http://localhost:3000/api/v1/expense";
-// const proxyUrl = "https://cors-anywhere.herokuapp.com/";
+// const BASE_URL = "http://localhost:3000/api/v1/expense";
+const BASE_URL = "http://3.108.55.19:3000/api/v1/expense";
+const proxyUrl = "https://cors-anywhere.herokuapp.com/";
 let editingId = null;
 const token = localStorage.getItem("token")
 // const userId = localStorage.getItem("userId");
@@ -43,7 +44,7 @@ reportBtn.addEventListener('click', () => {
 
 document.getElementById("buyPremiumBtn").addEventListener("click", async () => {
     try {
-        const response = await axios.post("http://localhost:3000/api/v1/payment/create-order", {}, {
+        const response = await axios.post(`${proxyUrl}http://3.108.55.19:3000/api/v1/payment/create-order`, {}, {
             headers: {
                 "Authorization": token
             }
@@ -68,7 +69,7 @@ document.getElementById("buyPremiumBtn").addEventListener("click", async () => {
 
 document.addEventListener("DOMContentLoaded", async () => {
     try {
-        const response = await axios.get(`http://localhost:3000/api/v1/user/status`, {
+        const response = await axios.get(`${proxyUrl}http://3.108.55.19:3000/api/v1/user/status`, {
             headers: { "Authorization": token }
         });
 
@@ -107,7 +108,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 const fetchLeaderData = async (page = 1) => {
     try {
-        const response = await axios.get(`${BASE_URL}/allexpensedetails?page=${page}&limit=${leaderPerPage}`, {
+        const response = await axios.get(`${proxyUrl}${BASE_URL}/allexpensedetails?page=${page}&limit=${leaderPerPage}`, {
             headers: {
                 "Authorization": token
             }
@@ -204,7 +205,7 @@ if (!token) {
         // console.log(expenseObj);
         try {
             if (editingId) {
-                const res = await axios.put(`${BASE_URL}/edit/${editingId}`, expenseObj, {
+                const res = await axios.put(`${proxyUrl}${BASE_URL}/edit/${editingId}`, expenseObj, {
                     headers: {
                         "Authorization": token
                     }
@@ -286,7 +287,7 @@ if (!token) {
 
     const fetchExpenseData = async (page = 1) => {
         try {
-            const response = await axios.get(`${BASE_URL}/?page=${page}&limit=${itemsPerPage}`, {
+            const response = await axios.get(`${proxyUrl}${BASE_URL}/?page=${page}&limit=${itemsPerPage}`, {
                 headers: {
                     "Authorization": token
                 }
