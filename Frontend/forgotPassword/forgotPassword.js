@@ -1,6 +1,6 @@
 const form = document.getElementById("form");
 const email= document.getElementById("email_password");
-const proxyUrl = "https://cors-anywhere.herokuapp.com/corsdemo/";
+const proxyUrl = "https://cors-anywhere.herokuapp.com/";
 
 form.addEventListener('submit', async (event) => {
     event.preventDefault();

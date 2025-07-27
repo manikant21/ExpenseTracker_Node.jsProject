@@ -1,7 +1,7 @@
 // const BASE_URL = "http://expensetracker-env.eba-ex3dcvcn.ap-south-1.elasticbeanstalk.com/api/v1/expense";
 // const BASE_URL = "http://localhost:3000/api/v1/expense";
 const BASE_URL = "http://3.108.55.19:3000/api/v1/expense";
-const proxyUrl = "https://cors-anywhere.herokuapp.com/corsdemo/";
+const proxyUrl = "https://cors-anywhere.herokuapp.com/";
 let editingId = null;
 const token = localStorage.getItem("token")
 // const userId = localStorage.getItem("userId");

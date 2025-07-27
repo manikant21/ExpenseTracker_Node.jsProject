@@ -1,7 +1,7 @@
 // const BASE_URL_USER = "http://expensetracker-env.eba-ex3dcvcn.ap-south-1.elasticbeanstalk.com/api/v1/user";
 // const BASE_URL_USER = "http://localhost:3000/api/v1/user";
 const BASE_URL_USER = "http://3.108.55.19:3000/api/v1/user"
-const proxyUrl = "https://cors-anywhere.herokuapp.com/corsdemo/";
+const proxyUrl = "https://cors-anywhere.herokuapp.com/";
 
 const form = document.getElementById("register_form");
 
