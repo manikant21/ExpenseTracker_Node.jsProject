@@ -24,11 +24,11 @@ export const createOrder = async (orderId, amount, currency="INR", customerID, c
         customer_email: "sample@email.com", 
       },
       order_meta: {
-        return_url: `http://3.108.55.19:3000/api/v1/payment/status/${orderId}`,
+        return_url: `http://13.203.193.183:3000/api/v1/payment/status/${orderId}`,
         // return_url: `http://localhost:3000/api/v1/payment/status/${orderId}`,
         // return_url: `http://expensetracker-env.eba-ex3dcvcn.ap-south-1.elasticbeanstalk.com/api/v1/payment/status/${orderId}`,
         // notify_url: "http://expensetracker-env.eba-ex3dcvcn.ap-south-1.elasticbeanstalk.com/api/v1/payment/webhook",
-        notify_url : "http://3.108.55.19:3000/api/v1/payment//payment/webhook",
+        notify_url : "http://13.203.193.183:3000/api/v1/payment/webhook",
         payment_methods: "cc,dc,upi" 
       },
       order_expiry_time: expiry,

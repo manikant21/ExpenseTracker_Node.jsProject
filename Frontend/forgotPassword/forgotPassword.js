@@ -12,7 +12,7 @@ form.addEventListener('submit', async (event) => {
         email: email.value
     }
     try {
-        const response = await axios.post(`${proxyUrl}http://3.108.55.19:3000/api/v1/password/forgotpassword`, data);
+        const response = await axios.post(`${proxyUrl}http://13.203.193.183:3000/api/v1/password/forgotpassword`, data);
     } catch (error) {
         console.log(error);
     }

@@ -1,6 +1,6 @@
 // const BASE_URL = "http://expensetracker-env.eba-ex3dcvcn.ap-south-1.elasticbeanstalk.com/api/v1/expense";
 // const BASE_URL = "http://localhost:3000/api/v1/expense";
-const BASE_URL = "http://3.108.55.19:3000/api/v1/expense";
+const BASE_URL = "http://13.203.193.183:3000/api/v1/expense";
 const proxyUrl = "https://cors-anywhere.herokuapp.com/";
 let editingId = null;
 const token = localStorage.getItem("token")
@@ -44,7 +44,7 @@ reportBtn.addEventListener('click', () => {
 
 document.getElementById("buyPremiumBtn").addEventListener("click", async () => {
     try {
-        const response = await axios.post(`${proxyUrl}http://3.108.55.19:3000/api/v1/payment/create-order`, {}, {
+        const response = await axios.post(`${proxyUrl}http://13.203.193.183:3000/api/v1/payment/create-order`, {}, {
             headers: {
                 "Authorization": token
             }
@@ -69,7 +69,7 @@ document.getElementById("buyPremiumBtn").addEventListener("click", async () => {
 
 document.addEventListener("DOMContentLoaded", async () => {
     try {
-        const response = await axios.get(`${proxyUrl}http://3.108.55.19:3000/api/v1/user/status`, {
+        const response = await axios.get(`${proxyUrl}http://13.203.193.183:3000/api/v1/user/status`, {
             headers: { "Authorization": token }
         });
 
