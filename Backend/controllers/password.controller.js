@@ -34,7 +34,7 @@ export const forgotPassword = async (req, res) => {
             expiresAt: new Date(Date.now() + 10 * 60 * 1000)
         }, { transaction })
 
-            const resetLink = `http://13.203.193.183:3000/api/v1/password/$id{id}`        
+            const resetLink = `http://13.203.193.183:3000/api/v1/password/${id}`        
         // const resetLink = `http://expensetracker-env.eba-ex3dcvcn.ap-south-1.elasticbeanstalk.com/api/v1/password/resetpassword/${id}`;
 
         await sendResetPasswordEmail(email, resetLink);

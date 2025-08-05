@@ -216,7 +216,7 @@ if (!token) {
                 console.log("Edited:", res.data.data);
                 editingId = null;
             } else {
-                const res = await axios.post(`${BASE_URL}/add`, expenseObj, {
+                const res = await axios.post(`${proxyUrl}${BASE_URL}/add`, expenseObj, {
                     headers: {
                         "Authorization": token
                     }
