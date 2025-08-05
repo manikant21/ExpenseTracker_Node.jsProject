@@ -251,7 +251,7 @@ if (!token) {
         delebtn.textContent = "Delete";
         delebtn.addEventListener("click", async () => {
             try {
-                await axios.delete(`${BASE_URL}/delete/${data.id}`, {
+                await axios.delete(`${proxyUrl}${BASE_URL}/delete/${data.id}`, {
                     headers: {
                         "Authorization": token
                     }
